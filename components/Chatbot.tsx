@@ -13,7 +13,6 @@ type MessageType = {
   timestamp: Date;
 };
 
-// Type for a single chat
 type ChatType = {
   id: string;
   title: string;
@@ -23,7 +22,6 @@ type ChatType = {
   updatedAt: Date;
 };
 
-// Interface for text generation configuration
 interface GenerationConfig {
   temperature: number;
   maxTokens: number;
@@ -32,7 +30,6 @@ interface GenerationConfig {
   presencePenalty: number;
 }
 
-// Default configuration
 const defaultConfig: GenerationConfig = {
   temperature: 0.7,
   maxTokens: 100,
@@ -50,7 +47,6 @@ export default function Chatbot() {
   const [config, setConfig] = useState<GenerationConfig>(defaultConfig);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // States for chat management
   const [chats, setChats] = useState<ChatType[]>([]);
   const [activeChat, setActiveChat] = useState<string | null>(null);
   const [chatSidebarOpen, setChatSidebarOpen] = useState(false);
@@ -63,14 +59,12 @@ export default function Chatbot() {
     'How to assemble your own PC?',
   ];
 
-  // Loading chats from localStorage
   useEffect(() => {
     const savedChats = localStorage.getItem('chats');
 
     if (savedChats) {
       try {
         const parsedChats: ChatType[] = JSON.parse(savedChats);
-        // Convert dates from JSON to Date objects
         const chatsWithDates = parsedChats.map((chat) => ({
           ...chat,
           createdAt: new Date(chat.createdAt),
@@ -82,7 +76,6 @@ export default function Chatbot() {
         }));
         setChats(chatsWithDates);
 
-        // Load last active chat
         const lastActiveChat = localStorage.getItem('activeChat');
         if (
           lastActiveChat &&
@@ -90,7 +83,6 @@ export default function Chatbot() {
         ) {
           setActiveChat(lastActiveChat);
 
-          // Load messages from this chat
           const chat = chatsWithDates.find(
             (chat) => chat.id === lastActiveChat
           );
@@ -99,7 +91,6 @@ export default function Chatbot() {
             setSelectedModel(chat.model);
           }
         } else if (chatsWithDates.length > 0) {
-          // If there's no saved active chat, set the first available one
           setActiveChat(chatsWithDates[0].id);
           setMessages(chatsWithDates[0].messages);
           setSelectedModel(chatsWithDates[0].model);
@@ -108,11 +99,9 @@ export default function Chatbot() {
         console.error('Error loading chats:', e);
       }
     } else {
-      // If there are no saved chats, create a new one
       createNewChat();
     }
 
-    // Load configuration
     const savedConfig = localStorage.getItem('generationConfig');
     if (savedConfig) {
       try {
@@ -124,26 +113,22 @@ export default function Chatbot() {
     }
   }, []);
 
-  // Save active chat to localStorage
   useEffect(() => {
     if (activeChat) {
       localStorage.setItem('activeChat', activeChat);
     }
   }, [activeChat]);
 
-  // Save chats to localStorage
   useEffect(() => {
     if (chats.length > 0) {
       localStorage.setItem('chats', JSON.stringify(chats));
     }
   }, [chats]);
 
-  // Save configuration to localStorage
   useEffect(() => {
     localStorage.setItem('generationConfig', JSON.stringify(config));
   }, [config]);
 
-  // Update active chat when messages change
   useEffect(() => {
     if (activeChat && messages.length > 0) {
       updateChat(activeChat, {
@@ -161,7 +146,6 @@ export default function Chatbot() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Creating a new chat
   const createNewChat = () => {
     const newChat: ChatType = {
       id: Date.now().toString(),
@@ -177,18 +161,15 @@ export default function Chatbot() {
     setMessages([]);
   };
 
-  // Updating chat data
   const updateChat = (chatId: string, data: Partial<ChatType>) => {
     setChats((prev) =>
       prev.map((chat) => (chat.id === chatId ? { ...chat, ...data } : chat))
     );
   };
 
-  // Deleting a chat
   const deleteChat = (chatId: string) => {
     setChats((prev) => prev.filter((chat) => chat.id !== chatId));
 
-    // If we're deleting the active chat, switch to another one or create a new one
     if (activeChat === chatId) {
       const remainingChats = chats.filter((chat) => chat.id !== chatId);
       if (remainingChats.length > 0) {
@@ -196,13 +177,11 @@ export default function Chatbot() {
         setMessages(remainingChats[0].messages);
         setSelectedModel(remainingChats[0].model);
       } else {
-        // If there are no other chats, create a new one
         createNewChat();
       }
     }
   };
 
-  // Switching to another chat
   const switchChat = (chatId: string) => {
     const chat = chats.find((chat) => chat.id === chatId);
     if (chat) {
@@ -212,18 +191,14 @@ export default function Chatbot() {
     }
   };
 
-  // Changing chat title
   const changeChatTitle = (chatId: string, newTitle: string) => {
     updateChat(chatId, { title: newTitle });
   };
 
-  // Generating chat title based on the first user message
   const generateChatTitle = async (chatId: string, userMessage: string) => {
-    // If it already has a custom title, don't change it
     const chat = chats.find((chat) => chat.id === chatId);
     if (chat && chat.title !== 'New chat') return;
 
-    // Shortened version of the message as the title
     const shortenedMessage =
       userMessage.slice(0, 30) + (userMessage.length > 30 ? '...' : '');
     updateChat(chatId, { title: shortenedMessage });
@@ -242,7 +217,6 @@ export default function Chatbot() {
     setInput('');
     setIsLoading(true);
 
-    // If this is the first message in the chat, generate a title
     if (activeChat && messages.length === 0) {
       generateChatTitle(activeChat, input);
     }
@@ -258,14 +232,13 @@ export default function Chatbot() {
             role: msg.role,
             content: msg.content,
           })),
-          config: config, // Sending configuration to the API
+          config: config,
         }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        // If the server returned an error, throw an exception with the server's message
         throw new Error(data.error || 'Error communicating with the API');
       }
 
@@ -279,7 +252,6 @@ export default function Chatbot() {
     } catch (error: any) {
       console.error('Error:', error);
 
-      // Display error message in chat
       const errorMessage: MessageType = {
         role: 'system',
         content:
@@ -319,7 +291,6 @@ export default function Chatbot() {
     }
   };
 
-  // Function to update a single configuration field
   const updateConfig = (field: keyof GenerationConfig, value: number) => {
     setConfig((prev) => ({ ...prev, [field]: value }));
   };
@@ -330,7 +301,6 @@ export default function Chatbot() {
     return chat ? chat.title : 'Chat';
   };
 
-  // Getting the first message from the chat (for preview)
   const getChatPreview = (chat: ChatType) => {
     if (chat.messages.length === 0) return 'New chat';
     const firstMessage = chat.messages[0];
@@ -342,7 +312,6 @@ export default function Chatbot() {
 
   return (
     <div className="flex h-[85vh] max-w-screen-xl mx-auto relative">
-      {/* Sidebar with chats */}
       <div
         className={`${
           chatSidebarOpen ? 'flex' : 'hidden md:flex'
@@ -458,9 +427,7 @@ export default function Chatbot() {
         </div>
       </div>
 
-      {/* Main chat area */}
       <div className="flex-1 flex flex-col h-full overflow-hidden border dark:border-zinc-700 rounded-lg">
-        {/* Header */}
         <div className="flex justify-between items-center p-4 border-b dark:border-zinc-700">
           <div className="flex items-center">
             <button
@@ -482,14 +449,16 @@ export default function Chatbot() {
                 />
               </svg>
             </button>
-            <h2 className="text-xl font-semibold">{getActiveChatTitle()}</h2>
+            <h2 className="sm:text-xl font-semibold hidden sm:block">
+              {getActiveChatTitle()}
+            </h2>
           </div>
           <div className="flex space-x-2">
             <button
               onClick={() => setConfigOpen(!configOpen)}
               className="px-3 py-2 text-sm bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-700 dark:hover:bg-zinc-600 rounded-md"
             >
-              ⚙️ Settings
+              ⚙️ <span className="sm:block hidden">Settings</span>
             </button>
             <ModelSelector
               models={glhfModels}
@@ -510,7 +479,6 @@ export default function Chatbot() {
           </div>
         </div>
 
-        {/* Configuration panel */}
         {configOpen && (
           <div className="p-4 border-b dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800">
             <h3 className="text-sm font-medium mb-3">Generation settings</h3>
@@ -629,7 +597,6 @@ export default function Chatbot() {
           </div>
         )}
 
-        {/* Chat container */}
         <div className="flex-1 overflow-auto p-4 bg-gray-50 dark:bg-zinc-900 border dark:border-zinc-700 rounded-lg m-1">
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-gray-400 dark:text-gray-500">
@@ -693,7 +660,6 @@ export default function Chatbot() {
           )}
         </div>
 
-        {/* Input area */}
         <div className="p-4 border-t dark:border-zinc-700">
           <PlaceholdersAndVanishInput
             value={input}

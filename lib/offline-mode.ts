@@ -1,4 +1,3 @@
-// Sample responses for offline mode
 const offlineResponses = [
   "This is a response generated locally in offline mode. You currently don't have a configured connection to the GLHF API.",
   'Offline mode active. This response is generated locally because no API key was detected.',
@@ -7,13 +6,11 @@ const offlineResponses = [
   'This is the demo mode of the application. Add an API key to use language models.',
 ];
 
-// Function returning a random offline response
 export function getOfflineResponse(): string {
   const randomIndex = Math.floor(Math.random() * offlineResponses.length);
   return offlineResponses[randomIndex];
 }
 
-// Checks if the API is configured
 export function isApiConfigured(): boolean {
   return (
     typeof process !== 'undefined' &&
