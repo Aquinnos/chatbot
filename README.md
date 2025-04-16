@@ -1,36 +1,123 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Chatbot with GLHF API
+
+A modern, responsive chatbot application built with Next.js and the GLHF API (based on OpenAI). This application allows users to have interactive conversations with various AI language models.
+
+![Chatbot App](/public/chatbot-preview.png)
+
+## Features
+
+- **Interactive Chat Interface**: Clean and responsive UI for chatting with AI models
+- **Multiple Model Support**: Select from a variety of GLHF-powered AI models
+- **Chat Management**: Create, switch between, and delete conversations
+- **Persistent Storage**: Conversations and settings are saved in localStorage
+- **Customizable Generation Settings**: Adjust parameters like temperature, max tokens, etc.
+- **Offline Mode**: Fallback responses when API key is not configured
+- **Mobile-Friendly Design**: Responsive layout with collapsible sidebar for mobile devices
+- **Dark Mode Support**: Full compatibility with light and dark themes
+
+## Tech Stack
+
+- **Next.js 15.x**: React framework for the frontend
+- **React 19.x**: For building the user interface
+- **TypeScript**: Type-safe code
+- **TailwindCSS**: For styling
+- **OpenAI SDK**: For communication with the GLHF API
+- **localStorage API**: For client-side data persistence
+- **Motion**: For animations
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18.x or higher
+- npm or yarn
+- GLHF API key (optional for full functionality)
+
+### Installation
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/yourusername/chatbot.git
+cd chatbot
+```
+
+2. Install dependencies
+
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Create a `.env.local` file in the root directory and add your GLHF API key:
+
+```
+GLHF_API_KEY=your_api_key_here
+```
+
+4. Start the development server
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Start a new chat using the "+" button in the sidebar
+- Type your message in the input field at the bottom
+- Select different AI models using the model selector in the header
+- Adjust generation settings using the "⚙️ Settings" button
+- View all available models on the Models page
+- Save and manage multiple chat conversations
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+chatbot/
+├── app/                   # Next.js app router files
+│   ├── api/               # API routes
+│   │   └── chat/          # Chat API endpoint
+│   ├── models/            # Models selection page
+│   └── page.tsx           # Main application page
+├── components/            # React components
+│   ├── Chatbot.tsx        # Main chatbot component
+│   └── ui/                # UI components
+│       ├── model-selector.tsx
+│       └── placeholders-and-vanish-input.tsx
+├── lib/                   # Utilities and configuration
+│   ├── glhf.ts            # GLHF API client
+│   ├── models.ts          # Model definitions
+│   ├── offline-mode.ts    # Offline mode functionality
+│   └── utils.ts           # Helper functions
+└── public/                # Static assets
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Configuration
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The chatbot can be configured through the UI with these settings:
 
-## Deploy on Vercel
+- **Temperature**: Controls randomness (0-2)
+- **Max Tokens**: Maximum number of tokens in the response (50-1000)
+- **Top P**: Nucleus sampling parameter (0-1)
+- **Frequency Penalty**: Reduces repetition (0-2)
+- **Presence Penalty**: Encourages topic diversity (0-2)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Offline Mode
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+When no GLHF API key is provided, the application automatically switches to offline mode, providing simulated responses. This is useful for testing the UI without API calls.
+
+## License
+
+MIT
+
+## Acknowledgements
+
+- [Next.js](https://nextjs.org/) - The React Framework
+- [GLHF API](https://glhf.chat) - AI API provider
+- [TailwindCSS](https://tailwindcss.com/) - CSS framework
+- [React](https://reactjs.org/) - UI library
