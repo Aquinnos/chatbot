@@ -2,8 +2,6 @@
 
 A modern, responsive chatbot application built with Next.js and the GLHF API (based on OpenAI). This application allows users to have interactive conversations with various AI language models.
 
-![Chatbot App](/public/chatbot-preview.png)
-
 ## Features
 
 - **Interactive Chat Interface**: Clean and responsive UI for chatting with AI models
