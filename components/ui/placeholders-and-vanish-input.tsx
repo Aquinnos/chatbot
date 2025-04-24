@@ -16,10 +16,12 @@ export function PlaceholdersAndVanishInput({
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }) {
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
-  const [localValue, setLocalValue] = useState(value); // Local state synchronized with value prop
+  const [localValue, setLocalValue] = useState(value);
   const [animating, setAnimating] = useState(false);
+  
+  // Add a constant placeholder rotation interval (in milliseconds)
+  const PLACEHOLDER_ROTATION_INTERVAL = 3000;
 
-  // Synchronize local state with value prop
   useEffect(() => {
     if (!animating) {
       setLocalValue(value);
@@ -27,19 +29,26 @@ export function PlaceholdersAndVanishInput({
   }, [value, animating]);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const startAnimation = () => {
+
+  const startAnimation = useCallback(() => {
+    // Clear any existing interval first to prevent multiple intervals running
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    
     intervalRef.current = setInterval(() => {
       setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
-    }, 3000);
-  };
-  const handleVisibilityChange = () => {
+    }, PLACEHOLDER_ROTATION_INTERVAL);
+  }, [placeholders, PLACEHOLDER_ROTATION_INTERVAL]);
+
+  const handleVisibilityChange = useCallback(() => {
     if (document.visibilityState !== 'visible' && intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     } else if (document.visibilityState === 'visible') {
       startAnimation();
     }
-  };
+  }, [startAnimation]);
 
   useEffect(() => {
     startAnimation();
@@ -51,10 +60,25 @@ export function PlaceholdersAndVanishInput({
       }
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [placeholders]);
+  }, [placeholders, startAnimation, handleVisibilityChange]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const newDataRef = useRef<any[]>([]);
+
+  // Define a proper type for the pixel data
+  type PixelPoint = {
+    x: number;
+    y: number;
+    color: number[];
+  };
+
+  type PixelData = {
+    x: number;
+    y: number;
+    r: number;
+    color: string;
+  };
+
+  const newDataRef = useRef<PixelData[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const draw = useCallback(() => {
@@ -76,12 +100,12 @@ export function PlaceholdersAndVanishInput({
 
     const imageData = ctx.getImageData(0, 0, 800, 800);
     const pixelData = imageData.data;
-    const newData: any[] = [];
+    const newData: PixelPoint[] = [];
 
     for (let t = 0; t < 800; t++) {
-      let i = 4 * t * 800;
+      const i = 4 * t * 800;
       for (let n = 0; n < 800; n++) {
-        let e = i + 4 * n;
+        const e = i + 4 * n;
         if (
           pixelData[e] !== 0 &&
           pixelData[e + 1] !== 0 &&
@@ -172,7 +196,9 @@ export function PlaceholdersAndVanishInput({
         bubbles: true,
         cancelable: true,
       }) as unknown as React.FormEvent<HTMLFormElement>;
-      onSubmit && onSubmit(formEvent);
+      if (onSubmit) {
+        onSubmit(formEvent);
+      }
       // Then start the animation
       vanishAndSubmit();
     }
@@ -196,7 +222,9 @@ export function PlaceholdersAndVanishInput({
     e.preventDefault();
     if (!animating && localValue.trim()) {
       // First call onSubmit to ensure the message is sent
-      onSubmit && onSubmit(e);
+      if (onSubmit) {
+        onSubmit(e);
+      }
       // Then start the vanishing animation
       vanishAndSubmit();
     }
@@ -205,7 +233,9 @@ export function PlaceholdersAndVanishInput({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!animating) {
       setLocalValue(e.target.value);
-      onChange && onChange(e);
+      if (onChange) {
+        onChange(e);
+      }
     }
   };
 
@@ -294,7 +324,7 @@ export function PlaceholdersAndVanishInput({
                 duration: 0.3,
                 ease: 'linear',
               }}
-              className="dark:text-zinc-500 text-sm sm:text-base font-normal text-neutral-500 pl-4 sm:pl-12 text-left w-[calc(100%-2rem)] truncate"
+              className="dark:text-zinc-500 text-sm sm:text-base font-normal text-neutral-500 pl-4 sm:pl-12 text-left w-[calc(100%-2.5rem)] truncate overflow-ellipsis whitespace-nowrap"
             >
               {placeholders[currentPlaceholder]}
             </motion.p>

@@ -3,9 +3,45 @@
 import { useRouter } from 'next/navigation';
 import { glhfModels } from '@/lib/models';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { ChatType } from '@/components/chat/types';
 
 export default function ModelsPage() {
   const router = useRouter();
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const chatId = localStorage.getItem('activeChat');
+    setActiveChatId(chatId);
+  }, []);
+
+  const handleModelSelect = (modelId: string) => {
+    localStorage.setItem('selectedModelId', modelId);
+
+    if (activeChatId) {
+      try {
+        const chatsJson = localStorage.getItem('chats');
+        if (chatsJson) {
+          const chats = JSON.parse(chatsJson);
+          const updatedChats = chats.map((chat: ChatType) => {
+            if (chat.id === activeChatId) {
+              const selectedModel = glhfModels.find((m) => m.id === modelId);
+              if (selectedModel) {
+                return { ...chat, model: selectedModel };
+              }
+            }
+            return chat;
+          });
+
+          localStorage.setItem('chats', JSON.stringify(updatedChats));
+        }
+      } catch (error) {
+        console.error('Error updating chat model:', error);
+      }
+    }
+
+    router.push('/');
+  };
 
   return (
     <main className="p-4 max-w-6xl mx-auto">
@@ -61,11 +97,7 @@ export default function ModelsPage() {
               </div>
 
               <button
-                onClick={() => {
-                  // Save selected model to localStorage and navigate to chat
-                  localStorage.setItem('selectedModel', JSON.stringify(model));
-                  router.push('/');
-                }}
+                onClick={() => handleModelSelect(model.id)}
                 className="w-full mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
               >
                 Use this model

@@ -1,16 +1,24 @@
+/**
+ * Type definition for AI models supported by the application
+ */
 export interface Model {
-  id: string;
-  name: string;
-  provider: 'glhf';
-  maxTokens?: number;
-  description?: string;
-  contextSize?: number;
-  price?: {
-    input: string;
-    output: string;
+  id: string; // Unique identifier for the model in API calls
+  name: string; // Display name for the model
+  provider: string; // Service provider (e.g., glhf)
+  maxTokens: number; // Default maximum number of tokens for generation
+  description: string; // Human-readable description of the model's capabilities
+  contextSize: number; // Maximum context window size in tokens
+  price: {
+    // Pricing information
+    input: string; // Cost per token for input text
+    output: string; // Cost per token for generated output
   };
 }
 
+/**
+ * List of AI models available through the GLHF API
+ * This list includes 18 different models with varying capabilities and pricing
+ */
 export const glhfModels: Model[] = [
   {
     id: 'hf:meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8',
@@ -241,4 +249,11 @@ export const glhfModels: Model[] = [
   },
 ];
 
-export const defaultModel = glhfModels[0];
+/**
+ * Default model to use if no specific model is selected
+ * Currently set to Meta Llama 3.1 70B Instruct, with a fallback to the first available model
+ */
+export const defaultModel =
+  glhfModels.find(
+    (model) => model.id === 'hf:meta-llama/Meta-Llama-3.1-70B-Instruct'
+  ) || glhfModels[0];
