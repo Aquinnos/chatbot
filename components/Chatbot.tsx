@@ -32,6 +32,7 @@ export default function Chatbot() {
     setChatSidebarOpen,
     placeholders,
     handleSend,
+    stopGeneration,
     createNewChat,
     updateChat,
     deleteChat,
@@ -92,23 +93,25 @@ export default function Chatbot() {
         )}
 
         {/* Main chat messages area */}
-        <div className="flex-1 overflow-auto p-4 bg-gray-50 dark:bg-zinc-900 border dark:border-zinc-700 rounded-lg m-1">
-          {messages.length === 0 ? (
-            <EmptyChat
-              placeholders={placeholders}
-              selectedModel={selectedModel}
-              onSelectPrompt={(prompt) => {
-                setInput(prompt);
-                setTimeout(() => handleSend(), 100);
-              }}
-            />
-          ) : (
-            <MessageList
-              messages={messages}
-              formatTime={formatTime}
-              selectedModel={selectedModel}
-            />
-          )}
+        <div className="flex-1 overflow-hidden relative">
+          <div className="absolute inset-0 overflow-y-auto p-4 bg-gray-50 dark:bg-zinc-900 border dark:border-zinc-700 rounded-lg m-1">
+            {messages.length === 0 ? (
+              <EmptyChat
+                placeholders={placeholders}
+                selectedModel={selectedModel}
+                onSelectPrompt={(prompt) => {
+                  setInput(prompt);
+                  setTimeout(() => handleSend(), 100);
+                }}
+              />
+            ) : (
+              <MessageList
+                messages={messages}
+                formatTime={formatTime}
+                selectedModel={selectedModel}
+              />
+            )}
+          </div>
         </div>
 
         {/* Input area for sending messages */}
@@ -122,11 +125,36 @@ export default function Chatbot() {
             }}
             placeholders={placeholders}
           />
-          {isLoading && (
-            <div className="text-sm text-gray-500 dark:text-gray-400 mt-2 text-center">
-              {selectedModel.name} is replying...
-            </div>
-          )}
+          <div className="text-sm text-gray-500 dark:text-gray-400 mt-2 text-center flex justify-center items-center">
+            {isLoading && (
+              <>
+                <span className="mr-2">
+                  {selectedModel.name} is replying...
+                </span>
+                <button
+                  onClick={stopGeneration}
+                  className="bg-red-500 hover:bg-red-600 text-white rounded-md px-3 py-1 text-xs font-medium flex items-center transition-colors"
+                  aria-label="Stop generation"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="mr-1"
+                  >
+                    <rect x="6" y="6" width="12" height="12"></rect>
+                  </svg>
+                  Stop
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

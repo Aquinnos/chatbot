@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { MessageType } from './types';
 import { Model } from '@/lib/models';
 import ReactMarkdown from 'react-markdown';
+import { useToast } from '@/components/ui/Toast';
 
 /**
  * Props for the MessageList component
@@ -30,6 +31,7 @@ export function MessageList({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedThinkingIds, setExpandedThinkingIds] = useState<string[]>([]);
   const [expandedLinkIds, setExpandedLinkIds] = useState<string[]>([]);
+  const { toast } = useToast();
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -45,11 +47,21 @@ export function MessageList({
     navigator.clipboard.writeText(code).then(
       () => {
         setCopiedId(id);
+        toast({
+          message: 'Code copied to clipboard!',
+          type: 'success',
+          duration: 2000
+        });
         // Reset copied status after 2 seconds
         setTimeout(() => setCopiedId(null), 2000);
       },
       (err) => {
         console.error('Could not copy text: ', err);
+        toast({
+          message: 'Failed to copy code to clipboard',
+          type: 'error',
+          duration: 3000
+        });
       }
     );
   };

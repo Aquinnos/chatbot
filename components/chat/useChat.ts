@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Model, defaultModel, glhfModels } from '@/lib/models';
 import {
   ChatType,
@@ -21,6 +21,7 @@ export function useChat() {
   const [selectedModel, setSelectedModel] = useState<Model>(defaultModel);
   const [configOpen, setConfigOpen] = useState(false);
   const [config, setConfig] = useState<GenerationConfig>(defaultConfig);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Chat management state
   const [chats, setChats] = useState<ChatType[]>([]);
@@ -199,6 +200,18 @@ export function useChat() {
   };
 
   /**
+   * Stops the current model response generation
+   */
+  const stopGeneration = () => {
+    if (abortControllerRef.current) {
+      // Add a reason for the abort to help in error handling
+      abortControllerRef.current.abort('user_requested_stop');
+      abortControllerRef.current = null;
+      setIsLoading(false);
+    }
+  };
+
+  /**
    * Handles sending a message to the API and processing the response
    */
   const handleSend = async () => {
@@ -218,9 +231,35 @@ export function useChat() {
       generateChatTitle(activeChat, input);
     }
 
+    // Create an aborted flag to track if the request was manually stopped
+    let wasManuallyAborted = false;
+
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 120000);
+      // Cancel any ongoing requests before starting a new one
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      
+      // Create a new AbortController for this request
+      abortControllerRef.current = new AbortController();
+      
+      // Set up a handler to track manual aborts
+      const currentController = abortControllerRef.current;
+      
+      // Listen for abort events to detect manual stops
+      currentController.signal.addEventListener('abort', () => {
+        // If the abort came from stopGeneration(), we'll mark it as manual
+        if (abortControllerRef.current === currentController) {
+          wasManuallyAborted = true;
+        }
+      });
+      
+      const timeoutId = setTimeout(() => {
+        if (abortControllerRef.current === currentController) {
+          abortControllerRef.current.abort('timeout');
+          abortControllerRef.current = null;
+        }
+      }, 120000);
 
       // Get the user-provided API key from localStorage
       const userApiKey = localStorage.getItem('user_glhf_api_key') || '';
@@ -238,7 +277,7 @@ export function useChat() {
           config: config,
           userApiKey: userApiKey, // Include the user's API key
         }),
-        signal: controller.signal,
+        signal: abortControllerRef.current.signal,
       });
 
       clearTimeout(timeoutId);
@@ -276,21 +315,33 @@ export function useChat() {
         errorContent =
           'Network error: Failed to connect to the server. Please check your internet connection.';
       } else if (error instanceof DOMException && error.name === 'AbortError') {
-        errorContent =
-          'Request timed out. The server took too long to respond.';
+        // Check if this was manually aborted by user clicking "Stop"
+        if (wasManuallyAborted) {
+          errorContent = 'Generation stopped by user.';
+          // Don't show error message for manual interruptions
+          console.log('Response generation stopped by user');
+          // Return early without adding error message to chat
+          return;
+        } else {
+          errorContent = 'Request timed out. The server took too long to respond.';
+        }
       } else if (error instanceof Error) {
         errorContent = `Error: ${error.message}`;
       }
 
-      const errorMessage: MessageType = {
-        role: 'system',
-        content: errorContent,
-        timestamp: new Date(),
-      };
+      // Only add error message if we're still loading
+      if (isLoading) {
+        const errorMessage: MessageType = {
+          role: 'system',
+          content: errorContent,
+          timestamp: new Date(),
+        };
 
-      setMessages((prev) => [...prev, errorMessage]);
+        setMessages((prev) => [...prev, errorMessage]);
+      }
     } finally {
       setIsLoading(false);
+      abortControllerRef.current = null;
     }
   };
 
@@ -360,6 +411,7 @@ export function useChat() {
     setChatSidebarOpen,
     placeholders,
     handleSend,
+    stopGeneration,
     createNewChat,
     updateChat,
     deleteChat,
