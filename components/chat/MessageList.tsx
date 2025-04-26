@@ -50,7 +50,7 @@ export function MessageList({
         toast({
           message: 'Code copied to clipboard!',
           type: 'success',
-          duration: 2000
+          duration: 2000,
         });
         // Reset copied status after 2 seconds
         setTimeout(() => setCopiedId(null), 2000);
@@ -60,7 +60,7 @@ export function MessageList({
         toast({
           message: 'Failed to copy code to clipboard',
           type: 'error',
-          duration: 3000
+          duration: 3000,
         });
       }
     );
@@ -123,7 +123,7 @@ export function MessageList({
             <div>{renderMessageContent(answer)}</div>
             <button
               onClick={() => toggleThinking(messageId)}
-              className="mt-3 text-xs flex items-center text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
+              className="mt-3 text-xs flex items-center text-[#1DCD9F] hover:text-[#169976] dark:text-[#1DCD9F] dark:hover:text-[#169976]"
             >
               {isExpanded ? (
                 <>
@@ -209,7 +209,7 @@ export function MessageList({
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 break-all underline"
+              className="text-[#1DCD9F] hover:text-[#169976] dark:text-[#1DCD9F] dark:hover:text-[#169976] break-all underline"
             >
               {displayUrl}
             </a>
@@ -288,7 +288,7 @@ export function MessageList({
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 break-all underline"
+                  className="text-[#1DCD9F] hover:text-[#169976] dark:text-[#1DCD9F] dark:hover:text-[#169976] break-all underline"
                 >
                   {displayUrl}
                 </a>
@@ -442,13 +442,13 @@ export function MessageList({
             className={cn(
               'rounded-lg p-4 max-w-[80%]',
               message.role === 'user'
-                ? 'bg-blue-500 text-white'
+                ? 'bg-[#169976] text-white'
                 : message.role === 'system'
                 ? 'bg-red-500 text-white'
                 : 'bg-white dark:bg-zinc-800 border dark:border-zinc-700'
             )}
           >
-            <div className="mb-1 text-xs text-gray-200 dark:text-gray-400 flex justify-between">
+            <div className="mb-1 text-xs text-gray-200 dark:text-gray-200 flex justify-between">
               <span>
                 {message.role === 'user'
                   ? 'You'

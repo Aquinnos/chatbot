@@ -35,7 +35,7 @@ export function ChatSidebar({
         <div className="flex items-center space-x-2">
           <button
             onClick={createNewChat}
-            className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+            className="p-2 bg-[#1DCD9F] hover:bg-[#169976] text-white rounded-md"
             title="New chat"
           >
             <svg
@@ -88,7 +88,7 @@ export function ChatSidebar({
                 key={chat.id}
                 className={`p-2 rounded-md cursor-pointer transition-colors ${
                   activeChat === chat.id
-                    ? 'bg-blue-100 dark:bg-blue-900'
+                    ? 'bg-green-100 dark:bg-[#169976]'
                     : 'hover:bg-gray-200 dark:hover:bg-zinc-700'
                 }`}
                 onClick={() => switchChat(chat.id)}
@@ -102,7 +102,7 @@ export function ChatSidebar({
                       e.stopPropagation();
                       deleteChat(chat.id);
                     }}
-                    className="p-1 rounded-full hover:bg-red-100 dark:hover:bg-red-900 text-red-500"
+                    className="p-1 rounded-full dark:hover:text-red-600 text-black "
                     title="Delete chat"
                   >
                     <svg
@@ -121,7 +121,7 @@ export function ChatSidebar({
                     </svg>
                   </button>
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                <div className="text-xs text-gray-500 dark:text-gray-300 truncate">
                   {formatDate(chat.updatedAt)}
                 </div>
               </div>
@@ -133,7 +133,7 @@ export function ChatSidebar({
       <div className="p-3 border-t dark:border-zinc-700">
         <Link
           href="/models"
-          className="flex items-center justify-center p-2 bg-gray-200 dark:bg-zinc-700 hover:bg-gray-300 dark:hover:bg-zinc-600 rounded-md text-sm transition-colors"
+          className="flex items-center justify-center p-2 bg-[#1DCD9F] hover:bg-[#169976] rounded-md text-sm transition-colors"
         >
           <span>See the list of models</span>
         </Link>

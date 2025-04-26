@@ -142,7 +142,7 @@ export function ApiKeyDialog({ isOpen, onClose }: ApiKeyDialogProps) {
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded disabled:opacity-50"
+              className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded disabled:opacity-50"
             >
               {isSaving ? 'Saving...' : 'Save'}
             </button>

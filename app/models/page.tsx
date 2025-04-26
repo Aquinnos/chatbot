@@ -49,7 +49,7 @@ export default function ModelsPage() {
         <h1 className="text-2xl font-bold">Available AI Models</h1>
         <Link
           href="/"
-          className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+          className="px-4 py-2 bg-[#1DCD9F] hover:bg-[#169976] text-white rounded-md"
         >
           Return to chat
         </Link>
@@ -64,7 +64,7 @@ export default function ModelsPage() {
             <div className="bg-gray-50 dark:bg-zinc-800 p-4 border-b dark:border-zinc-700">
               <h2 className="text-xl font-semibold">{model.name}</h2>
             </div>
-            <div className="p-4 space-y-3">
+            <div className=" p-4 space-y-3 ">
               <p className="text-gray-700 dark:text-gray-300">
                 {model.description}
               </p>
@@ -97,8 +97,8 @@ export default function ModelsPage() {
               </div>
 
               <button
+                className="w-full mt-4 px-4 py-2 bg-[#1DCD9F] hover:bg-[#169976] text-white rounded-md"
                 onClick={() => handleModelSelect(model.id)}
-                className="w-full mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
               >
                 Use this model
               </button>

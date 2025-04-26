@@ -62,7 +62,7 @@ export default function Chatbot() {
         formatDate={formatDate}
       />
 
-      <div className="flex-1 flex flex-col h-full overflow-hidden border dark:border-zinc-700 rounded-lg">
+      <div className="flex-1 flex flex-col h-full overflow-hidden border border-[#222222] rounded-lg">
         {/* Header with model selector and controls */}
         <ChatHeader
           chatSidebarOpen={chatSidebarOpen}
@@ -94,7 +94,7 @@ export default function Chatbot() {
 
         {/* Main chat messages area */}
         <div className="flex-1 overflow-hidden relative">
-          <div className="absolute inset-0 overflow-y-auto p-4 bg-gray-50 dark:bg-zinc-900 border dark:border-zinc-700 rounded-lg m-1">
+          <div className="absolute inset-0 overflow-y-auto p-4 bg-[#000000] border border-[#222222] rounded-lg m-1">
             {messages.length === 0 ? (
               <EmptyChat
                 placeholders={placeholders}
@@ -115,7 +115,7 @@ export default function Chatbot() {
         </div>
 
         {/* Input area for sending messages */}
-        <div className="p-4 border-t dark:border-zinc-700">
+        <div className="p-4 border-t border-[#222222]">
           <PlaceholdersAndVanishInput
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -125,7 +125,7 @@ export default function Chatbot() {
             }}
             placeholders={placeholders}
           />
-          <div className="text-sm text-gray-500 dark:text-gray-400 mt-2 text-center flex justify-center items-center">
+          <div className="text-sm text-gray-300 mt-2 text-center flex justify-center items-center">
             {isLoading && (
               <>
                 <span className="mr-2">
@@ -133,7 +133,7 @@ export default function Chatbot() {
                 </span>
                 <button
                   onClick={stopGeneration}
-                  className="bg-red-500 hover:bg-red-600 text-white rounded-md px-3 py-1 text-xs font-medium flex items-center transition-colors"
+                  className="bg-red-500 hover:bg-red-600 text-black rounded-md px-3 py-1 text-xs font-medium flex items-center transition-colors"
                   aria-label="Stop generation"
                 >
                   <svg

@@ -46,7 +46,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
               {
                 'bg-green-500': t.type === 'success',
                 'bg-red-500': t.type === 'error',
-                'bg-blue-500': t.type === 'info',
+                'bg-green-500': t.type === 'info',
               }
             )}
           >
@@ -66,13 +66,13 @@ export const useToast = () => {
   return context;
 };
 
-export const Toast: React.FC<ToastProps> = ({ message, type, duration }) => {
+export const Toast: React.FC<ToastProps> = ({ message, type }) => {
   return (
     <div
       className={cn('px-4 py-2 rounded shadow-md text-white', {
         'bg-green-500': type === 'success',
         'bg-red-500': type === 'error',
-        'bg-blue-500': type === 'info',
+        'bg-green-500': type === 'info',
       })}
     >
       {message}

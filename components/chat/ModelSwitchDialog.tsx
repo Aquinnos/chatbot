@@ -42,10 +42,7 @@ export function ModelSwitchDialog({
         isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
     >
-      <div
-        className="absolute inset-0 bg-black/50"
-        onClick={onKeepCurrentModel}
-      ></div>
+      <div className="absolute inset-0 bg-black/50" onClick={onClose}></div>
       <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg w-full max-w-md mx-4 z-10 overflow-hidden">
         <div className="p-6">
           <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
@@ -61,7 +58,7 @@ export function ModelSwitchDialog({
           <div className="flex flex-col space-y-3">
             <button
               onClick={onCreateNewChat}
-              className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors"
+              className="bg-[#1DCD9F] hover:bg-[#169976] text-white py-2 px-4 rounded-md transition-colors"
             >
               Start a new chat with {newModel.name}
             </button>
