@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 5000;
 const corsOptions = {
   origin: 'http://localhost:3000',
   credentials: true,
+  exposedHeaders: ['Authorization'],
 };
 
 const app = express();
@@ -22,9 +23,18 @@ app.get('/', (req, res) => {
   res.send('Hello, World!');
 });
 
+if (!process.env.JWT_SECRET) {
+  console.warn('JWT_SECRET is not defined in the environment variables');
+}
+
 app.use('/api', userRoutes);
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/chatbot';
+const MONGO_URI = process.env.MONGO_URI;
+
+if (!MONGO_URI) {
+  console.error('MongoDB URI is not defined in the environment variables');
+  process.exit(1);
+}
 
 mongoose
   .connect(MONGO_URI)

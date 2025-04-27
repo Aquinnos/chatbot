@@ -34,6 +34,7 @@ export default function Login() {
 
       // Store user data in localStorage or using a state management library
       localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('token', userData.token);
 
       // Redirect to the main page
       router.push('/');
