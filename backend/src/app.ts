@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import userRoutes from './routes/userRoutes';
+import chatRoutes from './routes/chatRoutes';
+import offlineResponseRoutes from './routes/offlineResponseRoutes';
 
 dotenv.config();
 
@@ -28,6 +30,8 @@ if (!process.env.JWT_SECRET) {
 }
 
 app.use('/api', userRoutes);
+app.use('/api/chats', chatRoutes);
+app.use('/api/offline-responses', offlineResponseRoutes);
 
 const MONGO_URI = process.env.MONGO_URI;
 

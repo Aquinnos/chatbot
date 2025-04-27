@@ -1,4 +1,4 @@
-import e, { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import User from '../models/user';
 import jwt, { SignOptions } from 'jsonwebtoken';
 
@@ -8,11 +8,13 @@ export const createUser = async (req: Request, res: Response) => {
     const exitstingEmail = await User.findOne({ email });
     if (exitstingEmail) {
       res.status(400).json({ message: 'Email already exists' });
+      return;
     }
 
     const existingUsername = await User.findOne({ username });
     if (existingUsername) {
       res.status(400).json({ message: 'Username already exists' });
+      return;
     }
 
     const newUser = new User({ username, email, password });
@@ -21,7 +23,6 @@ export const createUser = async (req: Request, res: Response) => {
     res.status(201).json({
       id: newUser._id,
       username: newUser.username,
-      password: newUser.password,
       email: newUser.email,
     });
   } catch (error) {
@@ -33,18 +34,30 @@ export const createUser = async (req: Request, res: Response) => {
 export const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   try {
+    console.log(`Attempting login for email: ${email}`);
     const user = await User.findOne({ email });
 
     if (!user) {
+      console.log(`User not found for email: ${email}`);
       res.status(404).json({ message: 'User not found' });
       return;
     }
 
+    console.log(
+      `User found: ${user.username}, password in DB (hashed): ${user.password}`
+    );
+    console.log(`Comparing provided password with hashed password in DB`);
+
     const isPasswordValid = await user.comparePassword(password);
+    console.log(`Password comparison result: ${isPasswordValid}`);
+
     if (!isPasswordValid) {
+      console.log(`Invalid password for user: ${user.username}`);
       res.status(401).json({ message: 'Invalid password' });
       return;
     }
+
+    console.log(`Login successful for user: ${user.username}`);
 
     const token = jwt.sign(
       { id: user._id, email: user.email, username: user.username },

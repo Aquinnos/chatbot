@@ -7,6 +7,13 @@ interface IUser extends mongoose.Document {
   email: string;
   password: string;
   apiKey?: string;
+  chats: mongoose.Types.ObjectId[];
+  offlineMode?: boolean;
+  offlineResponses?: mongoose.Types.ObjectId[];
+  apiUsage?: {
+    count: number;
+    lastReset: Date;
+  };
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 

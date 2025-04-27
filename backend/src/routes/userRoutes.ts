@@ -7,8 +7,8 @@ import {
   deleteUser,
   updateApiKey,
 } from '../controllers/userController';
-import { auth } from '../middlewares/auth';
-import { validateRegistration, validateLogin } from '../middlewares/validator';
+import { auth } from '../middleware/auth';
+import { validateRegistration, validateLogin } from '../middleware/validator';
 
 const router = Router();
 
