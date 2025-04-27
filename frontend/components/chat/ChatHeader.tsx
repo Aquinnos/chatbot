@@ -39,25 +39,21 @@ export function ChatHeader({
 
   const handleModelSelect = (model: Model) => {
     if (model.id === selectedModel.id) {
-      return; // No change if selecting the same model
+      return;
     }
 
-    // If there are no messages in the current chat, just switch the model
     if (messagesCount === 0) {
       onModelSelect(model);
       return;
     }
 
-    // Otherwise, show the warning dialog
     setPendingModel(model);
     setModelSwitchDialogOpen(true);
   };
 
   const handleCreateNewChat = () => {
     if (pendingModel) {
-      // First set the selected model
       onModelSelect(pendingModel);
-      // Then create a new chat (which will use the just-selected model)
       createNewChat();
       setModelSwitchDialogOpen(false);
       setPendingModel(null);
