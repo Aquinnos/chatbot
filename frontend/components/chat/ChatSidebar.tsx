@@ -35,7 +35,7 @@ export function ChatSidebar({
         <div className="flex items-center space-x-2">
           <button
             onClick={createNewChat}
-            className="p-2 bg-[#1DCD9F] hover:bg-[#169976] text-white rounded-md"
+            className="p-2 bg-[#1dcd9f] hover:bg-primary-dark text-white rounded-md"
             title="New chat"
           >
             <svg
@@ -88,7 +88,7 @@ export function ChatSidebar({
                 key={chat.id}
                 className={`p-2 rounded-md cursor-pointer transition-colors ${
                   activeChat === chat.id
-                    ? 'bg-green-100 dark:bg-[#169976]'
+                    ? 'bg-green-100 dark:bg-primary-dark'
                     : 'hover:bg-gray-200 dark:hover:bg-zinc-700'
                 }`}
                 onClick={() => switchChat(chat.id)}
@@ -133,7 +133,7 @@ export function ChatSidebar({
       <div className="p-3 border-t dark:border-zinc-700">
         <Link
           href="/models"
-          className="flex items-center justify-center p-2 bg-[#1DCD9F] hover:bg-[#169976] rounded-md text-sm transition-colors"
+          className="flex items-center justify-center p-2 bg-[#1DCD9F] hover:bg-primary-dark rounded-md text-sm transition-colors"
         >
           <span>See the list of models</span>
         </Link>

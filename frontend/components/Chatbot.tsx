@@ -133,7 +133,7 @@ export default function Chatbot() {
                 </span>
                 <button
                   onClick={stopGeneration}
-                  className="bg-red-500 hover:bg-red-600 text-black rounded-md px-3 py-1 text-xs font-medium flex items-center transition-colors"
+                  className="bg-red-500 hover:bg-red-600 text-white rounded-md px-3 py-1 text-xs font-medium flex items-center transition-colors"
                   aria-label="Stop generation"
                 >
                   <svg
