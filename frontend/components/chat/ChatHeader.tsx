@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ModelSelector } from '../ui/model-selector';
 import { Model } from '@/lib/models';
 import { ApiKeyDialog } from './ApiKeyDialog';
 import { ModelSwitchDialog } from './ModelSwitchDialog';
+import { authApi } from '@/services/api';
 
 interface ChatHeaderProps {
   chatSidebarOpen: boolean;
@@ -33,6 +35,7 @@ export function ChatHeader({
   createNewChat,
   messagesCount,
 }: ChatHeaderProps) {
+  const router = useRouter();
   const [apiKeyDialogOpen, setApiKeyDialogOpen] = useState(false);
   const [modelSwitchDialogOpen, setModelSwitchDialogOpen] = useState(false);
   const [pendingModel, setPendingModel] = useState<Model | null>(null);
@@ -63,6 +66,15 @@ export function ChatHeader({
   const handleKeepCurrentModel = () => {
     setModelSwitchDialogOpen(false);
     setPendingModel(null);
+  };
+
+  const handleLogout = () => {
+    authApi.logout();
+    router.push('/auth/login');
+  };
+
+  const handleProfileClick = () => {
+    router.push('/profile');
   };
 
   return (
@@ -127,6 +139,20 @@ export function ChatHeader({
             aria-label="Clear chat"
           >
             <span className="sm:inline">Clear chat</span>
+          </button>
+          <button
+            onClick={handleProfileClick}
+            className="flex-shrink-0 w-full sm:w-auto px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+            aria-label="Profile"
+          >
+            <span className="sm:inline">Profile</span>
+          </button>
+          <button
+            onClick={handleLogout}
+            className="flex-shrink-0 w-full sm:w-auto px-3 py-1.5 text-sm bg-gray-500 hover:bg-gray-600 text-white rounded-md"
+            aria-label="Logout"
+          >
+            <span className="sm:inline">Logout</span>
           </button>
         </div>
       </div>

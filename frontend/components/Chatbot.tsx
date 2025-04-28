@@ -94,7 +94,7 @@ export default function Chatbot() {
 
         {/* Main chat messages area */}
         <div className="flex-1 overflow-hidden relative">
-          <div className="absolute inset-0 overflow-y-auto p-4 bg-[#000000] border border-[#222222] rounded-lg m-1">
+          <div className="absolute inset-0 overflow-y-auto p-4 bg-white dark:bg-zinc-800 border border-[#222222] rounded-lg m-1">
             {messages.length === 0 ? (
               <EmptyChat
                 placeholders={placeholders}

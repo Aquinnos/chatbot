@@ -3,6 +3,7 @@
 import Chatbot from '@/components/Chatbot';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { authApi } from '@/services/api';
 
 export default function Home() {
   const router = useRouter();
@@ -10,14 +11,19 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const user = localStorage.getItem('user');
+    // Use the authApi to check authentication status
+    const checkAuth = () => {
+      const isAuth = authApi.isAuthenticated();
 
-    if (!user) {
-      router.push('/auth/login');
-    } else {
-      setIsAuthenticated(true);
-    }
-    setIsLoading(false);
+      if (!isAuth) {
+        router.push('/auth/login');
+      } else {
+        setIsAuthenticated(true);
+      }
+      setIsLoading(false);
+    };
+
+    checkAuth();
   }, [router]);
 
   if (isLoading) {
@@ -33,18 +39,9 @@ export default function Home() {
   }
 
   return (
-    <main className="p-4 h-[100vh]">
+    <main className="p-4 h-[100vh] bg-white dark:bg-zinc-900">
       <div className="flex justify-between items-center mb-4 p-2">
         <h1 className="text-xl font-bold">Chatbot with GLHF API</h1>
-        <button
-          onClick={() => {
-            localStorage.removeItem('user');
-            router.push('/auth/login');
-          }}
-          className="px-4 py-2 text-sm bg-[#1dcd9f] hover:bg-[#169976] rounded"
-        >
-          Logout
-        </button>
       </div>
       <Chatbot />
     </main>

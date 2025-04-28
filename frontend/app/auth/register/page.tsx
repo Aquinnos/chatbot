@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AuthLayout from '@/components/auth/AuthLayout';
+import { authApi } from '@/services/api';
 
 export default function Register() {
   const router = useRouter();
@@ -25,23 +26,14 @@ export default function Register() {
     }
 
     try {
-      const response = await fetch('http://localhost:5001/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, email, password }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to register');
-      }
-
-      // Registration successful, redirect to login
+      await authApi.register({ username, email, password });
       router.push('/auth/login');
-    } catch (err: any) {
-      setError(err.message || 'An error occurred during registration');
+    } catch (err: Error | unknown) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : 'An error occurred during registration';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

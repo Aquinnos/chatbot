@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AuthLayout from '@/components/auth/AuthLayout';
+import { authApi } from '@/services/api';
 
 export default function Login() {
   const router = useRouter();
@@ -17,29 +18,13 @@ export default function Login() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5001/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to log in');
-      }
-
-      const userData = await response.json();
-
-      // Store user data in localStorage or using a state management library
-      localStorage.setItem('user', JSON.stringify(userData));
-      localStorage.setItem('token', userData.token);
-
-      // Redirect to the main page
+      await authApi.login({ email, password });
+      // Redirect to the main page after successful login
       router.push('/');
-    } catch (err: any) {
-      setError(err.message || 'An error occurred during login');
+    } catch (err: Error | unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'An error occurred during login';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
