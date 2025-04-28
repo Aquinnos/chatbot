@@ -1,4 +1,3 @@
-// API service for handling all API requests
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
@@ -18,6 +17,14 @@ interface User {
   username: string;
   email: string;
   token?: string;
+  apiKey?: string;
+}
+
+interface UpdateProfileParams {
+  username?: string;
+  email?: string;
+  password?: string;
+  currentPassword?: string;
 }
 
 // Helper to set a cookie
@@ -110,6 +117,27 @@ export const authApi = {
   // Check if user is authenticated
   isAuthenticated: (): boolean => {
     return !!getCookie('token') || !!localStorage.getItem('token');
+  },
+
+  // Update user profile
+  updateProfile: async (data: UpdateProfileParams): Promise<User> => {
+    const response = await authApi.authenticatedRequest('/users', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+
+    // Update the stored user data with new information
+    const currentUserData = authApi.getCurrentUser();
+    if (currentUserData) {
+      const updatedUserData = {
+        ...currentUserData,
+        username: data.username || currentUserData.username,
+        email: data.email || currentUserData.email,
+      };
+      localStorage.setItem('user', JSON.stringify(updatedUserData));
+    }
+
+    return response;
   },
 
   // Make an authenticated API request

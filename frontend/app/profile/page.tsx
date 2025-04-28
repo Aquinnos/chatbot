@@ -15,21 +15,34 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const router = useRouter();
+
+  // Edit state
+  const [isEditing, setIsEditing] = useState(false);
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [updateError, setUpdateError] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         setIsLoading(true);
-        // Get profile from localStorage first
         const userData = authApi.getCurrentUser();
 
         if (userData) {
           setProfile(userData);
+          setUsername(userData.username);
+          setEmail(userData.email);
         } else {
-          // If not in localStorage, try to fetch from API
           const response = await authApi.authenticatedRequest('/users');
           setProfile(response);
+          setUsername(response.username);
+          setEmail(response.email);
         }
       } catch (err: unknown) {
         setError(
@@ -47,6 +60,83 @@ export default function ProfilePage() {
   const handleLogout = () => {
     authApi.logout();
     router.push('/auth/login');
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUpdateError('');
+    setSuccessMessage('');
+    setIsUpdating(true);
+
+    try {
+      if (newPassword && newPassword !== confirmNewPassword) {
+        setUpdateError('New passwords do not match');
+        setIsUpdating(false);
+        return;
+      }
+
+      const updateData: {
+        username?: string;
+        email?: string;
+        password?: string;
+        currentPassword?: string;
+      } = {};
+
+      if (username !== profile?.username) {
+        updateData.username = username;
+      }
+
+      if (email !== profile?.email) {
+        updateData.email = email;
+      }
+
+      if (newPassword) {
+        updateData.password = newPassword;
+        if (!currentPassword) {
+          setUpdateError('Current password is required to set a new password');
+          setIsUpdating(false);
+          return;
+        }
+        updateData.currentPassword = currentPassword;
+      }
+
+      if (Object.keys(updateData).length === 0) {
+        setIsEditing(false);
+        setIsUpdating(false);
+        return;
+      }
+      const updatedProfile = await authApi.updateProfile(updateData);
+
+      setProfile(updatedProfile);
+      setUsername(updatedProfile.username);
+      setEmail(updatedProfile.email);
+
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmNewPassword('');
+
+      setSuccessMessage('Profile updated successfully');
+      setIsEditing(false);
+    } catch (err: unknown) {
+      setUpdateError(
+        err instanceof Error ? err.message : 'Failed to update profile'
+      );
+      console.error('Error updating profile:', err);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    if (profile) {
+      setUsername(profile.username);
+      setEmail(profile.email);
+    }
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmNewPassword('');
+    setUpdateError('');
+    setIsEditing(false);
   };
 
   if (isLoading) {
@@ -99,33 +189,161 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          {successMessage && (
+            <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6">
+              <p className="text-green-700">{successMessage}</p>
+            </div>
+          )}
+
           {profile ? (
-            <div className="space-y-6">
-              <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-8 py-4 border-b dark:border-zinc-700">
-                <div className="font-medium text-gray-500 dark:text-gray-400 w-48">
-                  Username
-                </div>
-                <div className="text-lg">{profile.username}</div>
-              </div>
+            isEditing ? (
+              <form onSubmit={handleUpdate} className="space-y-6">
+                {updateError && (
+                  <div className="bg-red-50 border-l-4 border-red-500 p-4">
+                    <p className="text-red-700">{updateError}</p>
+                  </div>
+                )}
 
-              <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-8 py-4 border-b dark:border-zinc-700">
-                <div className="font-medium text-gray-500 dark:text-gray-400 w-48">
-                  Email
+                <div className="space-y-2">
+                  <label
+                    htmlFor="username"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    Username
+                  </label>
+                  <input
+                    id="username"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+                    required
+                  />
                 </div>
-                <div className="text-lg">{profile.email}</div>
-              </div>
 
-              {profile.apiKey && (
+                <div className="space-y-2">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+                    required
+                  />
+                </div>
+
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                  <h3 className="text-lg font-medium mb-4">Change Password</h3>
+
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="currentPassword"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                      Current Password
+                    </label>
+                    <input
+                      id="currentPassword"
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+                    />
+                  </div>
+
+                  <div className="space-y-2 mt-4">
+                    <label
+                      htmlFor="newPassword"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                      New Password
+                    </label>
+                    <input
+                      id="newPassword"
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+                    />
+                  </div>
+
+                  <div className="space-y-2 mt-4">
+                    <label
+                      htmlFor="confirmNewPassword"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                      Confirm New Password
+                    </label>
+                    <input
+                      id="confirmNewPassword"
+                      type="password"
+                      value={confirmNewPassword}
+                      onChange={(e) => setConfirmNewPassword(e.target.value)}
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end space-x-4 pt-4">
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white rounded-md hover:bg-gray-400 dark:hover:bg-gray-500"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isUpdating}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
+                  >
+                    {isUpdating ? 'Updating...' : 'Save Changes'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="space-y-6">
                 <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-8 py-4 border-b dark:border-zinc-700">
                   <div className="font-medium text-gray-500 dark:text-gray-400 w-48">
-                    API Key
+                    Username
                   </div>
-                  <div className="text-lg font-mono break-all bg-gray-100 dark:bg-zinc-700 p-2 rounded">
-                    {profile.apiKey}
-                  </div>
+                  <div className="text-lg">{profile.username}</div>
                 </div>
-              )}
-            </div>
+
+                <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-8 py-4 border-b dark:border-zinc-700">
+                  <div className="font-medium text-gray-500 dark:text-gray-400 w-48">
+                    Email
+                  </div>
+                  <div className="text-lg">{profile.email}</div>
+                </div>
+
+                {profile.apiKey && (
+                  <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-8 py-4 border-b dark:border-zinc-700">
+                    <div className="font-medium text-gray-500 dark:text-gray-400 w-48">
+                      API Key
+                    </div>
+                    <div className="text-lg font-mono break-all bg-gray-100 dark:bg-zinc-700 p-2 rounded">
+                      {profile.apiKey}
+                    </div>
+                  </div>
+                )}
+
+                <div className="pt-4">
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                  >
+                    Edit Profile
+                  </button>
+                </div>
+              </div>
+            )
           ) : (
             <p className="text-center text-gray-500">
               No profile data available

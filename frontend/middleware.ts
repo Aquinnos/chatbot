@@ -5,7 +5,6 @@ function middleware() {
   return NextResponse.next();
 }
 
-// Apply the authentication middleware to all routes
 export default withAuth(middleware);
 
 // Match all routes except for static files, api routes, etc.

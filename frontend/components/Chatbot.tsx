@@ -11,10 +11,6 @@ import { EmptyChat } from './chat/EmptyChat';
 import { useChat } from './chat/useChat';
 import { defaultConfig } from './chat/types';
 
-/**
- * Main Chatbot component that integrates all chat functionality
- * This serves as the primary container for the chat interface
- */
 export default function Chatbot() {
   const {
     messages,

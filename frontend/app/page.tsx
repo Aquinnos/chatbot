@@ -11,7 +11,6 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Use the authApi to check authentication status
     const checkAuth = () => {
       const isAuth = authApi.isAuthenticated();
 

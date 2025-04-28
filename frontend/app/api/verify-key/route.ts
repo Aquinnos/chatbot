@@ -5,7 +5,6 @@ export async function POST(req: Request) {
   try {
     const { apiKey } = await req.json();
 
-    // Basic validation
     if (!apiKey) {
       return NextResponse.json(
         { error: 'API key is required' },
@@ -13,7 +12,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Validate format
     if (!apiKey.startsWith('glhf_')) {
       return NextResponse.json(
         {
@@ -24,7 +22,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Try to use the API key
     const testClient = new OpenAI({
       apiKey: apiKey,
       baseURL: 'https://api.glhf.chat/v1',
@@ -35,10 +32,8 @@ export async function POST(req: Request) {
       // Try to list models - this will fail if the API key is invalid
       await testClient.models.list();
 
-      // Success - the API key is valid
       return NextResponse.json({ valid: true });
     } catch (apiError) {
-      // Extract useful error information
       const errorMessage =
         apiError instanceof Error ? apiError.message : 'Unknown error';
 

@@ -19,7 +19,6 @@ export default function Login() {
 
     try {
       await authApi.login({ email, password });
-      // Redirect to the main page after successful login
       router.push('/');
     } catch (err: Error | unknown) {
       const errorMessage =
