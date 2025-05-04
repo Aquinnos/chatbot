@@ -17,7 +17,7 @@ export default function AuthLayout({
   alternateLinkText,
 }: AuthLayoutProps) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#222222] p-4">
       <div className="w-full max-w-md space-y-6 rounded-lg bg-white p-8 shadow-md">
         <div className="text-center">
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">
