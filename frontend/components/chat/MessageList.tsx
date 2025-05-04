@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { MessageType } from './types';
-import { Model } from '@/lib/models';
+import { Model, defaultModel } from '@/lib/models';
 import ReactMarkdown from 'react-markdown';
 import { useToast } from '@/components/ui/Toast';
 
@@ -13,7 +13,7 @@ import { useToast } from '@/components/ui/Toast';
 interface MessageListProps {
   messages: MessageType[];
   formatTime: (date: Date) => string;
-  selectedModel: Model;
+  selectedModel: Model | undefined;
 }
 
 /**
@@ -25,13 +25,16 @@ interface MessageListProps {
 export function MessageList({
   messages,
   formatTime,
-  selectedModel,
+  selectedModel = defaultModel, // Dodajemy wartość domyślną
 }: MessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedThinkingIds, setExpandedThinkingIds] = useState<string[]>([]);
   const [expandedLinkIds, setExpandedLinkIds] = useState<string[]>([]);
   const { toast } = useToast();
+
+  // Zabezpieczenie przed undefined
+  const actualModel = selectedModel || defaultModel;
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -88,9 +91,9 @@ export function MessageList({
   const isDeepSeekR1Message = (message: MessageType) => {
     return (
       message.role === 'assistant' &&
-      (selectedModel.id === 'hf:deepseek-ai/DeepSeek-R1' ||
-        selectedModel.id === 'hf:deepseek-ai/DeepSeek-R1-Distill-Llama-70B' ||
-        selectedModel.name.includes('DeepSeek-R1'))
+      (actualModel.id === 'hf:deepseek-ai/DeepSeek-R1' ||
+        actualModel.id === 'hf:deepseek-ai/DeepSeek-R1-Distill-Llama-70B' ||
+        actualModel.name.includes('DeepSeek-R1'))
     );
   };
 
@@ -259,6 +262,9 @@ export function MessageList({
 
   // Parse code blocks from message content
   const renderMessageContent = (content: string) => {
+    // Pozostała część funkcji renderMessageContent bez zmian
+    // ...existing code...
+
     // If using plain text rendering
     if (!content.includes('```')) {
       return processLinks(content);
@@ -332,6 +338,9 @@ export function MessageList({
             );
           },
           code: ({ className, children, ...props }) => {
+            // Pełna implementacja obsługi kodu jak w oryginalnym pliku
+            // ...existing code...
+
             // Check if this is inline code or a code block
             const match = /language-(\w+)/.exec(className || '');
             // If there's no language match, it's likely inline code
@@ -454,7 +463,7 @@ export function MessageList({
                   ? 'You'
                   : message.role === 'system'
                   ? 'System'
-                  : selectedModel.name}
+                  : actualModel.name}
               </span>
               <span>{formatTime(message.timestamp)}</span>
             </div>

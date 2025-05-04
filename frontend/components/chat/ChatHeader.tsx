@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ModelSelector } from '../ui/model-selector';
-import { Model } from '@/lib/models';
+import { Model, defaultModel } from '@/lib/models';
 import { ApiKeyDialog } from './ApiKeyDialog';
 import { ModelSwitchDialog } from './ModelSwitchDialog';
 import { authApi } from '@/services/api';
@@ -15,7 +15,7 @@ interface ChatHeaderProps {
   configOpen: boolean;
   setConfigOpen: (open: boolean) => void;
   models: Model[];
-  selectedModel: Model;
+  selectedModel: Model | undefined;
   onModelSelect: (model: Model) => void;
   clearChat: () => void;
   createNewChat: () => void;
@@ -29,7 +29,7 @@ export function ChatHeader({
   configOpen,
   setConfigOpen,
   models,
-  selectedModel,
+  selectedModel = defaultModel, // Dodajemy wartość domyślną
   onModelSelect,
   clearChat,
   createNewChat,
@@ -40,8 +40,11 @@ export function ChatHeader({
   const [modelSwitchDialogOpen, setModelSwitchDialogOpen] = useState(false);
   const [pendingModel, setPendingModel] = useState<Model | null>(null);
 
+  // Zabezpieczenie przed undefined
+  const actualModel = selectedModel || defaultModel;
+
   const handleModelSelect = (model: Model) => {
-    if (model.id === selectedModel.id) {
+    if (model.id === actualModel.id) {
       return;
     }
 
@@ -80,7 +83,7 @@ export function ChatHeader({
   return (
     <>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 border-b dark:border-zinc-700">
-        <div className="flex items-center mb-2 sm:mb-0 w-full sm:w-auto">
+        <div className="flex items-center mb-2 sm:mb-0 w-full sm:w-auto mr-2">
           <button
             onClick={() => setChatSidebarOpen(!chatSidebarOpen)}
             className="md:hidden p-2 mr-2 rounded-md hover:bg-gray-200 dark:hover:bg-zinc-700"
@@ -129,7 +132,7 @@ export function ChatHeader({
           <div className="w-full sm:w-auto">
             <ModelSelector
               models={models}
-              selectedModel={selectedModel}
+              selectedModel={actualModel}
               onSelect={handleModelSelect}
             />
           </div>
@@ -142,7 +145,7 @@ export function ChatHeader({
           </button>
           <button
             onClick={handleProfileClick}
-            className="flex-shrink-0 w-full sm:w-auto px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+            className="flex-shrink-0 w-full sm:w-auto px-3 py-1.5 text-sm bg-[#1dcd9f] hover:bg-[#169976] text-white rounded-md"
             aria-label="Profile"
           >
             <span className="sm:inline">Profile</span>
@@ -166,7 +169,7 @@ export function ChatHeader({
         <ModelSwitchDialog
           isOpen={modelSwitchDialogOpen}
           onClose={() => setModelSwitchDialogOpen(false)}
-          currentModel={selectedModel}
+          currentModel={actualModel}
           newModel={pendingModel}
           onCreateNewChat={handleCreateNewChat}
           onKeepCurrentModel={handleKeepCurrentModel}

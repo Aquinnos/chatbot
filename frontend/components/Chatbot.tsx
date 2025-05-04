@@ -1,7 +1,7 @@
 'use client';
 
 import { PlaceholdersAndVanishInput } from './ui/placeholders-and-vanish-input';
-import { glhfModels } from '@/lib/models';
+import { glhfModels, defaultModel } from '@/lib/models';
 
 import { ChatSidebar } from './chat/ChatSidebar';
 import { ChatHeader } from './chat/ChatHeader';
@@ -43,6 +43,9 @@ export default function Chatbot() {
   // Reset configuration to default values
   const resetConfig = () =>
     updateConfig('temperature', defaultConfig.temperature);
+
+  // Zabezpieczenie przed undefined
+  const actualModel = selectedModel || defaultModel;
 
   return (
     <div className="flex h-[85vh] max-w-screen-xl mx-auto relative">
@@ -124,9 +127,7 @@ export default function Chatbot() {
           <div className="text-sm text-gray-300 mt-2 text-center flex justify-center items-center">
             {isLoading && (
               <>
-                <span className="mr-2">
-                  {selectedModel.name} is replying...
-                </span>
+                <span className="mr-2">{actualModel.name} is replying...</span>
                 <button
                   onClick={stopGeneration}
                   className="bg-red-500 hover:bg-red-600 text-white rounded-md px-3 py-1 text-xs font-medium flex items-center transition-colors"

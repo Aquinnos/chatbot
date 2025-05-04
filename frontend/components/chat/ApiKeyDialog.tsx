@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { authApi } from '@/services/api';
 
 interface ApiKeyDialogProps {
   isOpen: boolean;
@@ -13,11 +14,18 @@ export function ApiKeyDialog({ isOpen, onClose }: ApiKeyDialogProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Load the API key from localStorage on component mount
+  // Load the API key from user's account or localStorage on component mount
   useEffect(() => {
-    const savedKey = localStorage.getItem('user_glhf_api_key');
-    if (savedKey) {
-      setApiKey(savedKey);
+    // First try to get API key from authenticated user
+    const user = authApi.getCurrentUser();
+    if (user?.apiKey) {
+      setApiKey(user.apiKey);
+    } else {
+      // Fall back to localStorage if not in user data
+      const savedKey = localStorage.getItem('user_glhf_api_key');
+      if (savedKey) {
+        setApiKey(savedKey);
+      }
     }
   }, [isOpen]);
 
@@ -36,7 +44,7 @@ export function ApiKeyDialog({ isOpen, onClose }: ApiKeyDialogProps) {
         return;
       }
 
-      // Save to localStorage
+      // Save to localStorage for immediate use
       if (apiKey) {
         localStorage.setItem('user_glhf_api_key', apiKey);
       } else {
@@ -58,7 +66,20 @@ export function ApiKeyDialog({ isOpen, onClose }: ApiKeyDialogProps) {
         throw new Error(result.error || 'Failed to verify API key');
       }
 
-      setSuccess('API key verified and saved successfully!');
+      // If user is authenticated, also save to the backend
+      if (authApi.isAuthenticated()) {
+        try {
+          await authApi.updateApiKey(apiKey);
+          setSuccess(
+            'API key verified and saved to your account successfully!'
+          );
+        } catch (err) {
+          console.error('Failed to save API key to account:', err);
+          setSuccess('API key verified and saved locally.');
+        }
+      } else {
+        setSuccess('API key verified and saved locally.');
+      }
 
       // Close the dialog after a short delay
       setTimeout(() => {
@@ -75,10 +96,24 @@ export function ApiKeyDialog({ isOpen, onClose }: ApiKeyDialogProps) {
     }
   };
 
-  const handleClear = () => {
+  const handleClear = async () => {
     setApiKey('');
     localStorage.removeItem('user_glhf_api_key');
-    setSuccess('API key cleared. Using default key if available.');
+
+    // If user is authenticated, also clear from the backend
+    if (authApi.isAuthenticated()) {
+      try {
+        await authApi.updateApiKey('');
+        setSuccess(
+          'API key cleared from your account. Using default key if available.'
+        );
+      } catch (err) {
+        console.error('Failed to clear API key from account:', err);
+        setSuccess('API key cleared locally. Using default key if available.');
+      }
+    } else {
+      setSuccess('API key cleared. Using default key if available.');
+    }
 
     setTimeout(() => {
       onClose();
@@ -96,7 +131,11 @@ export function ApiKeyDialog({ isOpen, onClose }: ApiKeyDialogProps) {
 
         <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
           Enter your GLHF API key to use your own account. The key will be
-          stored in your browser and sent securely with each request.
+          stored in your browser and{' '}
+          {authApi.isAuthenticated()
+            ? 'synchronized with your account'
+            : 'sent securely with each request'}
+          .
         </p>
 
         <div className="mb-4">

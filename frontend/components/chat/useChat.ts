@@ -8,6 +8,8 @@ import {
   GenerationConfig,
   defaultConfig,
 } from './types';
+import { chatService } from '@/services/chatService';
+import { authApi } from '@/services/api';
 
 /**
  * Custom hook that manages the entire chat state and functionality
@@ -27,6 +29,7 @@ export function useChat() {
   const [chats, setChats] = useState<ChatType[]>([]);
   const [activeChat, setActiveChat] = useState<string | null>(null);
   const [chatSidebarOpen, setChatSidebarOpen] = useState(false);
+  const [isLoadingChats, setIsLoadingChats] = useState(false);
 
   // Sample prompts to display in the empty chat
   const placeholders = [
@@ -39,8 +42,9 @@ export function useChat() {
 
   // Load saved chats and settings from localStorage on initial load
   useEffect(() => {
-    const savedChats = localStorage.getItem('chats');
+    const token = authApi.getToken();
 
+    // Check model preferences
     const savedModelId = localStorage.getItem('selectedModelId');
     if (savedModelId) {
       const newModel = glhfModels.find((model) => model.id === savedModelId);
@@ -50,6 +54,69 @@ export function useChat() {
       }
     }
 
+    // Load configuration from localStorage
+    const savedConfig = localStorage.getItem('generationConfig');
+    if (savedConfig) {
+      try {
+        const parsedConfig = JSON.parse(savedConfig);
+        setConfig(parsedConfig);
+      } catch (e) {
+        console.error('Error loading configuration:', e);
+      }
+    }
+
+    // Load chats from backend if user is authenticated
+    if (token) {
+      loadUserChats(token);
+    } else {
+      // Fall back to localStorage chats if not authenticated
+      loadLocalChats();
+    }
+  }, []);
+
+  // Load chats from backend
+  const loadUserChats = async (token: string) => {
+    setIsLoadingChats(true);
+    try {
+      const backendChats = await chatService.getAllChats(token);
+
+      if (backendChats.length > 0) {
+        setChats(backendChats);
+
+        // Check for active chat in localStorage
+        const lastActiveChat = localStorage.getItem('activeChat');
+        if (
+          lastActiveChat &&
+          backendChats.some((chat) => chat.id === lastActiveChat)
+        ) {
+          setActiveChat(lastActiveChat);
+          const chat = backendChats.find((chat) => chat.id === lastActiveChat);
+          if (chat) {
+            setMessages(chat.messages);
+            if (chat.model) setSelectedModel(chat.model);
+          }
+        } else {
+          // If no active chat in localStorage or it doesn't exist anymore, use the first chat
+          setActiveChat(backendChats[0].id);
+          setMessages(backendChats[0].messages);
+          if (backendChats[0].model) setSelectedModel(backendChats[0].model);
+        }
+      } else {
+        // If no chats on backend, create a new one
+        createNewChat();
+      }
+    } catch (error) {
+      console.error('Error loading chats from backend:', error);
+      // Fall back to localStorage if backend fails
+      loadLocalChats();
+    } finally {
+      setIsLoadingChats(false);
+    }
+  };
+
+  // Load chats from localStorage as fallback
+  const loadLocalChats = () => {
+    const savedChats = localStorage.getItem('chats');
     if (savedChats) {
       try {
         const parsedChats: ChatType[] = JSON.parse(savedChats);
@@ -62,6 +129,7 @@ export function useChat() {
             timestamp: new Date(msg.timestamp),
           })),
         }));
+
         setChats(chatsWithDates);
 
         const lastActiveChat = localStorage.getItem('activeChat');
@@ -70,7 +138,6 @@ export function useChat() {
           chatsWithDates.some((chat) => chat.id === lastActiveChat)
         ) {
           setActiveChat(lastActiveChat);
-
           const chat = chatsWithDates.find(
             (chat) => chat.id === lastActiveChat
           );
@@ -82,24 +149,17 @@ export function useChat() {
           setActiveChat(chatsWithDates[0].id);
           setMessages(chatsWithDates[0].messages);
           setSelectedModel(chatsWithDates[0].model);
+        } else {
+          createNewChat();
         }
       } catch (e) {
-        console.error('Error loading chats:', e);
+        console.error('Error loading chats from localStorage:', e);
+        createNewChat();
       }
     } else {
       createNewChat();
     }
-
-    const savedConfig = localStorage.getItem('generationConfig');
-    if (savedConfig) {
-      try {
-        const parsedConfig = JSON.parse(savedConfig);
-        setConfig(parsedConfig);
-      } catch (e) {
-        console.error('Error loading configuration:', e);
-      }
-    }
-  }, []);
+  };
 
   // Save active chat ID to localStorage when it changes
   useEffect(() => {
@@ -108,7 +168,7 @@ export function useChat() {
     }
   }, [activeChat]);
 
-  // Save all chats to localStorage when they change
+  // Save all chats to localStorage when they change (as fallback)
   useEffect(() => {
     if (chats.length > 0) {
       localStorage.setItem('chats', JSON.stringify(chats));
@@ -133,7 +193,7 @@ export function useChat() {
   /**
    * Creates a new chat with default settings
    */
-  const createNewChat = () => {
+  const createNewChat = async () => {
     const newChat: ChatType = {
       id: Date.now().toString(),
       title: 'New chat',
@@ -146,6 +206,22 @@ export function useChat() {
     setChats((prev) => [newChat, ...prev]);
     setActiveChat(newChat.id);
     setMessages([]);
+
+    // If user is authenticated, create chat on backend
+    const token = authApi.getToken();
+    if (token) {
+      try {
+        const createdChat = await chatService.createChat(token, 'New chat');
+        // Replace the temporary chat with the one from the backend
+        setChats((prev) => [
+          createdChat,
+          ...prev.filter((chat) => chat.id !== newChat.id),
+        ]);
+        setActiveChat(createdChat.id);
+      } catch (error) {
+        console.error('Error creating chat on backend:', error);
+      }
+    }
   };
 
   /**
@@ -160,7 +236,18 @@ export function useChat() {
   /**
    * Deletes a chat and handles switching to another chat
    */
-  const deleteChat = (chatId: string) => {
+  const deleteChat = async (chatId: string) => {
+    // If user is authenticated, delete chat on backend
+    const token = authApi.getToken();
+    if (token) {
+      try {
+        await chatService.deleteChat(token, chatId);
+      } catch (error) {
+        console.error('Error deleting chat on backend:', error);
+      }
+    }
+
+    // Update local state
     setChats((prev) => prev.filter((chat) => chat.id !== chatId));
 
     if (activeChat === chatId) {
@@ -183,7 +270,7 @@ export function useChat() {
     if (chat) {
       setActiveChat(chatId);
       setMessages(chat.messages);
-      setSelectedModel(chat.model);
+      setSelectedModel(chat.model || defaultModel);
     }
   };
 
@@ -192,11 +279,11 @@ export function useChat() {
    */
   const generateChatTitle = async (chatId: string, userMessage: string) => {
     const chat = chats.find((chat) => chat.id === chatId);
-    if (chat && chat.title !== 'New chat') return;
-
-    const shortenedMessage =
-      userMessage.slice(0, 30) + (userMessage.length > 30 ? '...' : '');
-    updateChat(chatId, { title: shortenedMessage });
+    if (chat && chat.title === 'New chat') {
+      const shortenedMessage =
+        userMessage.slice(0, 30) + (userMessage.length > 30 ? '...' : '');
+      updateChat(chatId, { title: shortenedMessage });
+    }
   };
 
   /**
@@ -231,6 +318,16 @@ export function useChat() {
       generateChatTitle(activeChat, input);
     }
 
+    // Save the user message to backend if authenticated
+    const token = authApi.getToken();
+    if (token && activeChat) {
+      try {
+        await chatService.addMessageToChat(token, activeChat, userMessage);
+      } catch (error) {
+        console.error('Error saving message to backend:', error);
+      }
+    }
+
     // Create an aborted flag to track if the request was manually stopped
     let wasManuallyAborted = false;
 
@@ -239,13 +336,13 @@ export function useChat() {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
-      
+
       // Create a new AbortController for this request
       abortControllerRef.current = new AbortController();
-      
+
       // Set up a handler to track manual aborts
       const currentController = abortControllerRef.current;
-      
+
       // Listen for abort events to detect manual stops
       currentController.signal.addEventListener('abort', () => {
         // If the abort came from stopGeneration(), we'll mark it as manual
@@ -253,7 +350,7 @@ export function useChat() {
           wasManuallyAborted = true;
         }
       });
-      
+
       const timeoutId = setTimeout(() => {
         if (abortControllerRef.current === currentController) {
           abortControllerRef.current.abort('timeout');
@@ -305,6 +402,19 @@ export function useChat() {
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
+
+      // Save the assistant message to backend if authenticated
+      if (token && activeChat) {
+        try {
+          await chatService.addMessageToChat(
+            token,
+            activeChat,
+            assistantMessage
+          );
+        } catch (error) {
+          console.error('Error saving assistant message to backend:', error);
+        }
+      }
     } catch (error: unknown) {
       console.error('Error during fetch:', error);
 
@@ -323,7 +433,8 @@ export function useChat() {
           // Return early without adding error message to chat
           return;
         } else {
-          errorContent = 'Request timed out. The server took too long to respond.';
+          errorContent =
+            'Request timed out. The server took too long to respond.';
         }
       } else if (error instanceof Error) {
         errorContent = `Error: ${error.message}`;
@@ -348,10 +459,26 @@ export function useChat() {
   /**
    * Clears the current chat's messages
    */
-  const clearChat = () => {
+  const clearChat = async () => {
     if (activeChat) {
       setMessages([]);
       updateChat(activeChat, { messages: [] });
+
+      // If user is authenticated, create a new chat on backend since we can't clear messages
+      const token = authApi.getToken();
+      if (token) {
+        try {
+          const createdChat = await chatService.createChat(token, 'New chat');
+          // Add the new chat and set it as active
+          setChats((prev) => [
+            createdChat,
+            ...prev.filter((chat) => chat.id !== activeChat),
+          ]);
+          setActiveChat(createdChat.id);
+        } catch (error) {
+          console.error('Error creating new chat after clear:', error);
+        }
+      }
     }
   };
 
@@ -400,6 +527,7 @@ export function useChat() {
     input,
     setInput,
     isLoading,
+    isLoadingChats,
     selectedModel,
     setSelectedModel,
     configOpen,

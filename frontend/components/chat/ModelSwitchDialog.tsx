@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Model } from '@/lib/models';
+import { Model, defaultModel } from '@/lib/models';
 
 interface ModelSwitchDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  currentModel: Model;
+  currentModel: Model | undefined;
   newModel: Model;
   onCreateNewChat: () => void;
   onKeepCurrentModel: () => void;
@@ -15,12 +15,15 @@ interface ModelSwitchDialogProps {
 export function ModelSwitchDialog({
   isOpen,
   onClose,
-  currentModel,
+  currentModel = defaultModel,
   newModel,
   onCreateNewChat,
   onKeepCurrentModel,
 }: ModelSwitchDialogProps) {
   const [isVisible, setIsVisible] = useState(false);
+
+  // Zabezpieczenie przed undefined
+  const actualModel = currentModel || defaultModel;
 
   useEffect(() => {
     if (isOpen) {
@@ -50,7 +53,7 @@ export function ModelSwitchDialog({
           </h2>
           <p className="text-gray-700 dark:text-gray-300 mb-4">
             You already have messages in this chat from{' '}
-            <strong>{currentModel.name}</strong>. Switching to{' '}
+            <strong>{actualModel.name}</strong>. Switching to{' '}
             <strong>{newModel.name}</strong> may cause confusion as the new
             model won&apos;t have the same abilities or knowledge as the
             previous model.
@@ -66,7 +69,7 @@ export function ModelSwitchDialog({
               onClick={onKeepCurrentModel}
               className="bg-gray-200 dark:bg-zinc-700 hover:bg-gray-300 dark:hover:bg-zinc-600 text-gray-800 dark:text-gray-200 py-2 px-4 rounded-md transition-colors"
             >
-              Keep using {currentModel.name} in this chat
+              Keep using {actualModel.name} in this chat
             </button>
           </div>
         </div>

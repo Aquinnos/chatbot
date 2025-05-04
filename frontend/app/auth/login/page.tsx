@@ -18,12 +18,42 @@ export default function Login() {
     setError('');
 
     try {
+      // Sprawdzenie dostępności serwera przed próbą logowania
+      const serverCheckTimeout = setTimeout(() => {
+        setError(
+          'Serwer API nie jest dostępny. Sprawdź połączenie i spróbuj ponownie.'
+        );
+        setIsLoading(false);
+      }, 10000); // 10 sekund timeout
+
       await authApi.login({ email, password });
+
+      clearTimeout(serverCheckTimeout);
+
+      // Przekierowanie do strony głównej po udanym logowaniu
       router.push('/');
     } catch (err: Error | unknown) {
       const errorMessage =
-        err instanceof Error ? err.message : 'An error occurred during login';
-      setError(errorMessage);
+        err instanceof Error
+          ? err.message
+          : 'Wystąpił nieznany błąd podczas logowania. Spróbuj ponownie.';
+
+      // Bardziej przyjazne komunikaty błędów
+      let userFriendlyMessage = errorMessage;
+      if (errorMessage.includes('Server error: 404')) {
+        userFriendlyMessage =
+          'Użytkownik o podanym adresie e-mail nie został znaleziony.';
+      } else if (errorMessage.includes('Invalid password')) {
+        userFriendlyMessage = 'Nieprawidłowe hasło. Spróbuj ponownie.';
+      } else if (
+        errorMessage.includes('Failed to fetch') ||
+        errorMessage.includes('Network')
+      ) {
+        userFriendlyMessage =
+          'Problem z połączeniem do serwera. Sprawdź czy backend jest uruchomiony.';
+      }
+
+      setError(userFriendlyMessage);
     } finally {
       setIsLoading(false);
     }
@@ -58,7 +88,7 @@ export default function Login() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-[#1dcd9f] focus:outline-none"
           />
         </div>
 
@@ -77,7 +107,7 @@ export default function Login() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-[#1dcd9f]  focus:outline-none"
           />
         </div>
 

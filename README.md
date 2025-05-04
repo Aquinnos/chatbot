@@ -1,4 +1,4 @@
-# Advanced Chatbot with GLHF API
+# Chatbot with GLHF API
 
 A modern, responsive chatbot application built with Next.js and the GLHF API. This application allows users to have interactive conversations with various state-of-the-art AI language models, including Llama, DeepSeek, Mixtral, and more.
 

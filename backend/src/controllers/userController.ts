@@ -86,7 +86,22 @@ export const getProfile = async (req: Request, res: Response) => {
       res.status(404).json({ message: 'User not found' });
       return;
     }
-    res.status(200).json(user);
+
+    // Odszyfruj klucz API przed wysłaniem do klienta
+    const decryptedApiKey = user.getDecryptedApiKey();
+
+    // Przygotuj odpowiedź z odszyfrowanym kluczem API
+    const responseUser = {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      apiKey: decryptedApiKey,
+      offlineMode: user.offlineMode,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+
+    res.status(200).json(responseUser);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching user profile' });
     console.error('Error fetching user profile:', error);
@@ -109,11 +124,21 @@ export const updateProfile = async (req: Request, res: Response) => {
 
     await user.save();
 
-    res.status(200).json({
-      id: user._id,
-      username: user.username,
-      email: user.email,
-    });
+    // Pobierz zaktualizowanego użytkownika, aby zwrócić odszyfrowany klucz API
+    const updatedUser = await User.findById(user._id).select('-password');
+    if (!updatedUser) {
+      res.status(404).json({ message: 'User not found after update' });
+      return;
+    }
+
+    // Przygotuj odpowiedź bez klucza API
+    const responseUser = {
+      id: updatedUser._id,
+      username: updatedUser.username,
+      email: updatedUser.email,
+    };
+
+    res.status(200).json(responseUser);
   } catch (error) {
     res.status(500).json({ message: 'Error updating profile' });
     console.error('Error updating profile:', error);
@@ -141,17 +166,41 @@ export const updateApiKey = async (req: Request, res: Response) => {
     // @ts-ignore - user is not defined in the Request type
     const userId = req.user.id;
 
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { apiKey },
-      { new: true }
-    ).select('-password');
+    // Znajdź użytkownika i zaktualizuj jego klucz API
+    // Używamy findById + save zamiast findByIdAndUpdate, aby uruchomić middleware 'save'
+    const user = await User.findById(userId);
 
     if (!user) {
       res.status(404).json({ message: 'User not found' });
       return;
     }
-    res.status(200).json(user);
+
+    // Zapisz klucz API - zostanie automatycznie zaszyfrowany przez middleware 'save'
+    user.apiKey = apiKey;
+    await user.save();
+
+    // Pobierz zaktualizowanego użytkownika z zaszyfrowanym kluczem i odszyfruj go do odpowiedzi
+    const updatedUser = await User.findById(userId).select('-password');
+    if (!updatedUser) {
+      res.status(500).json({ message: 'Error fetching updated user' });
+      return;
+    }
+
+    // Odszyfruj klucz API przed wysłaniem do klienta
+    const decryptedApiKey = updatedUser.getDecryptedApiKey();
+
+    // Przygotuj odpowiedź z odszyfrowanym kluczem API
+    const responseUser = {
+      id: updatedUser._id,
+      username: updatedUser.username,
+      email: updatedUser.email,
+      apiKey: decryptedApiKey,
+      offlineMode: updatedUser.offlineMode,
+      createdAt: updatedUser.createdAt,
+      updatedAt: updatedUser.updatedAt,
+    };
+
+    res.status(200).json(responseUser);
   } catch (error) {
     res.status(500).json({ message: 'Error updating API key' });
     console.error('Error updating API key:', error);

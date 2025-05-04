@@ -11,14 +11,25 @@ interface UserProfile {
   apiKey?: string;
 }
 
+function maskApiKey(apiKey: string): string {
+  if (!apiKey) return '';
+  if (apiKey.length <= 10) return '*'.repeat(apiKey.length);
+
+  const prefix = apiKey.substring(0, 6);
+  const suffix = apiKey.substring(apiKey.length - 4);
+  const maskedPart = '*'.repeat(Math.min(10, apiKey.length - 10));
+
+  return `${prefix}${maskedPart}${suffix}`;
+}
+
 export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [showFullApiKey, setShowFullApiKey] = useState(false);
   const router = useRouter();
 
-  // Edit state
   const [isEditing, setIsEditing] = useState(false);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -139,6 +150,11 @@ export default function ProfilePage() {
     setIsEditing(false);
   };
 
+  // Funkcja do przełączania widoczności klucza API
+  const toggleApiKeyVisibility = () => {
+    setShowFullApiKey(!showFullApiKey);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex justify-center items-center">
@@ -176,7 +192,7 @@ export default function ProfilePage() {
             <div className="flex gap-4">
               <button
                 onClick={() => router.push('/')}
-                className="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                className="px-4 py-2 rounded-md bg-[#1dcd9f] text-white hover:bg-[#169976] transition-colors"
               >
                 Back to Chat
               </button>
@@ -197,7 +213,7 @@ export default function ProfilePage() {
 
           {profile ? (
             isEditing ? (
-              <form onSubmit={handleUpdate} className="space-y-6">
+              <form onSubmit={handleUpdate} className="space-y-6 ">
                 {updateError && (
                   <div className="bg-red-50 border-l-4 border-red-500 p-4">
                     <p className="text-red-700">{updateError}</p>
@@ -216,7 +232,7 @@ export default function ProfilePage() {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-[#1dcd9f] text-white"
                     required
                   />
                 </div>
@@ -233,7 +249,7 @@ export default function ProfilePage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-[#1dcd9f] text-white"
                     required
                   />
                 </div>
@@ -253,7 +269,7 @@ export default function ProfilePage() {
                       type="password"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-[#1dcd9f] text-white"
                     />
                   </div>
 
@@ -269,7 +285,7 @@ export default function ProfilePage() {
                       type="password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-[#1dcd9f] text-white"
                     />
                   </div>
 
@@ -285,7 +301,7 @@ export default function ProfilePage() {
                       type="password"
                       value={confirmNewPassword}
                       onChange={(e) => setConfirmNewPassword(e.target.value)}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-black"
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#1dcd9f] focus:border-[#1dcd9f] text-white"
                     />
                   </div>
                 </div>
@@ -301,7 +317,7 @@ export default function ProfilePage() {
                   <button
                     type="submit"
                     disabled={isUpdating}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
+                    className="px-4 py-2 bg-[#1dcd9f] text-white rounded-md hover:bg-[#169976] disabled:opacity-50"
                   >
                     {isUpdating ? 'Updating...' : 'Save Changes'}
                   </button>
@@ -328,8 +344,22 @@ export default function ProfilePage() {
                     <div className="font-medium text-gray-500 dark:text-gray-400 w-48">
                       API Key
                     </div>
-                    <div className="text-lg font-mono break-all bg-gray-100 dark:bg-zinc-700 p-2 rounded">
-                      {profile.apiKey}
+                    <div className="flex flex-col">
+                      <div className="text-lg font-mono break-all bg-gray-100 dark:bg-zinc-700 p-2 rounded flex items-center gap-2">
+                        {showFullApiKey
+                          ? profile.apiKey
+                          : maskApiKey(profile.apiKey)}
+                        <button
+                          onClick={toggleApiKeyVisibility}
+                          className="ml-2 p-1 text-xs bg-gray-200 dark:bg-zinc-600 rounded hover:bg-gray-300 dark:hover:bg-zinc-500"
+                        >
+                          {showFullApiKey ? 'Hide' : 'Show'}
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        This API key is stored encrypted in our database for
+                        your security.
+                      </p>
                     </div>
                   </div>
                 )}
@@ -337,7 +367,7 @@ export default function ProfilePage() {
                 <div className="pt-4">
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                    className="px-4 py-2 bg-[#1dcd9f] text-white rounded-md hover:bg-[#169976]"
                   >
                     Edit Profile
                   </button>

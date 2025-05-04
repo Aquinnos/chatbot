@@ -3,19 +3,22 @@
 import { useState } from 'react';
 import { Model } from '@/lib/models';
 import { cn } from '@/lib/utils';
+import { defaultModel } from '@/lib/models';
 
 interface ModelSelectorProps {
   models: Model[];
-  selectedModel: Model;
+  selectedModel: Model | undefined;
   onSelect: (model: Model) => void;
 }
 
 export function ModelSelector({
   models,
-  selectedModel,
+  selectedModel = defaultModel,
   onSelect,
 }: ModelSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const actualModel = selectedModel || defaultModel;
 
   return (
     <div className="relative">
@@ -24,9 +27,9 @@ export function ModelSelector({
         className="flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-left bg-[#222222] rounded-lg shadow-sm border border-[#000000] hover:bg-[#000000] text-white"
       >
         <div className="flex items-center">
-          <span className="block truncate">{selectedModel.name}</span>
+          <span className="block truncate">{actualModel.name}</span>
           <span className="ml-2 text-xs text-[#1DCD9F]">
-            {selectedModel.provider}
+            {actualModel.provider}
           </span>
         </div>
         <svg
@@ -57,7 +60,7 @@ export function ModelSelector({
               }}
               className={cn(
                 'text-left block w-full px-4 py-2 text-sm hover:bg-[#000000]',
-                selectedModel.id === model.id
+                actualModel.id === model.id
                   ? 'bg-[#000000] text-[#1DCD9F]'
                   : 'text-white'
               )}

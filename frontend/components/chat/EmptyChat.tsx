@@ -1,23 +1,26 @@
 'use client';
 
-import { Model } from '@/lib/models';
+import { Model, defaultModel } from '@/lib/models';
 
 interface EmptyChatProps {
   placeholders: string[];
-  selectedModel: Model;
+  selectedModel: Model | undefined;
   onSelectPrompt: (prompt: string) => void;
 }
 
 export function EmptyChat({
   placeholders,
-  selectedModel,
+  selectedModel = defaultModel,
   onSelectPrompt,
 }: EmptyChatProps) {
+  // Zabezpieczenie przed undefined
+  const actualModel = selectedModel || defaultModel;
+
   return (
     <div className="h-full flex flex-col items-center justify-center text-gray-400 dark:text-gray-500">
       <div className="text-center mb-4">
         <h3 className="text-xl font-medium mb-2">
-          Start a conversation with {selectedModel.name}
+          Start a conversation with {actualModel.name}
         </h3>
         <p>Choose a prompt or type your own message to begin.</p>
       </div>
