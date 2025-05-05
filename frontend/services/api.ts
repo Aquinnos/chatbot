@@ -91,7 +91,6 @@ export const authApi = {
         throw new Error('Invalid response from server');
       });
 
-      // Weryfikacja otrzymanych danych
       if (!userData || !userData.token) {
         throw new Error('Invalid user data received from server');
       }

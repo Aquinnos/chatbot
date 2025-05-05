@@ -16,7 +16,6 @@ import { authApi } from '@/services/api';
  * Handles message history, API communication, and chat management
  */
 export function useChat() {
-  // Core chat state
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -291,7 +290,6 @@ export function useChat() {
    */
   const stopGeneration = () => {
     if (abortControllerRef.current) {
-      // Add a reason for the abort to help in error handling
       abortControllerRef.current.abort('user_requested_stop');
       abortControllerRef.current = null;
       setIsLoading(false);
@@ -372,7 +370,7 @@ export function useChat() {
             content: msg.content,
           })),
           config: config,
-          userApiKey: userApiKey, // Include the user's API key
+          userApiKey: userApiKey,
         }),
         signal: abortControllerRef.current.signal,
       });

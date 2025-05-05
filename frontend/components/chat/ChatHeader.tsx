@@ -29,7 +29,7 @@ export function ChatHeader({
   configOpen,
   setConfigOpen,
   models,
-  selectedModel = defaultModel, // Dodajemy wartość domyślną
+  selectedModel = defaultModel,
   onModelSelect,
   clearChat,
   createNewChat,
@@ -40,7 +40,6 @@ export function ChatHeader({
   const [modelSwitchDialogOpen, setModelSwitchDialogOpen] = useState(false);
   const [pendingModel, setPendingModel] = useState<Model | null>(null);
 
-  // Zabezpieczenie przed undefined
   const actualModel = selectedModel || defaultModel;
 
   const handleModelSelect = (model: Model) => {

@@ -13,7 +13,6 @@ export function EmptyChat({
   selectedModel = defaultModel,
   onSelectPrompt,
 }: EmptyChatProps) {
-  // Zabezpieczenie przed undefined
   const actualModel = selectedModel || defaultModel;
 
   return (

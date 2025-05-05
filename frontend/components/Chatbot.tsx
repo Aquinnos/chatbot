@@ -44,7 +44,6 @@ export default function Chatbot() {
   const resetConfig = () =>
     updateConfig('temperature', defaultConfig.temperature);
 
-  // Zabezpieczenie przed undefined
   const actualModel = selectedModel || defaultModel;
 
   return (

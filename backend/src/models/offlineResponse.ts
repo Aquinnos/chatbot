@@ -1,5 +1,4 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { off } from 'process';
 
 export interface IOfflineResponse extends Document {
   query: string;

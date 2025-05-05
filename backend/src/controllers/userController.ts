@@ -87,10 +87,8 @@ export const getProfile = async (req: Request, res: Response) => {
       return;
     }
 
-    // Odszyfruj klucz API przed wysłaniem do klienta
     const decryptedApiKey = user.getDecryptedApiKey();
 
-    // Przygotuj odpowiedź z odszyfrowanym kluczem API
     const responseUser = {
       id: user._id,
       username: user.username,
@@ -124,14 +122,12 @@ export const updateProfile = async (req: Request, res: Response) => {
 
     await user.save();
 
-    // Pobierz zaktualizowanego użytkownika, aby zwrócić odszyfrowany klucz API
     const updatedUser = await User.findById(user._id).select('-password');
     if (!updatedUser) {
       res.status(404).json({ message: 'User not found after update' });
       return;
     }
 
-    // Przygotuj odpowiedź bez klucza API
     const responseUser = {
       id: updatedUser._id,
       username: updatedUser.username,
@@ -166,8 +162,6 @@ export const updateApiKey = async (req: Request, res: Response) => {
     // @ts-ignore - user is not defined in the Request type
     const userId = req.user.id;
 
-    // Znajdź użytkownika i zaktualizuj jego klucz API
-    // Używamy findById + save zamiast findByIdAndUpdate, aby uruchomić middleware 'save'
     const user = await User.findById(userId);
 
     if (!user) {
@@ -175,21 +169,17 @@ export const updateApiKey = async (req: Request, res: Response) => {
       return;
     }
 
-    // Zapisz klucz API - zostanie automatycznie zaszyfrowany przez middleware 'save'
     user.apiKey = apiKey;
     await user.save();
 
-    // Pobierz zaktualizowanego użytkownika z zaszyfrowanym kluczem i odszyfruj go do odpowiedzi
     const updatedUser = await User.findById(userId).select('-password');
     if (!updatedUser) {
       res.status(500).json({ message: 'Error fetching updated user' });
       return;
     }
 
-    // Odszyfruj klucz API przed wysłaniem do klienta
     const decryptedApiKey = updatedUser.getDecryptedApiKey();
 
-    // Przygotuj odpowiedź z odszyfrowanym kluczem API
     const responseUser = {
       id: updatedUser._id,
       username: updatedUser.username,

@@ -150,7 +150,6 @@ export default function ProfilePage() {
     setIsEditing(false);
   };
 
-  // Funkcja do przełączania widoczności klucza API
   const toggleApiKeyVisibility = () => {
     setShowFullApiKey(!showFullApiKey);
   };

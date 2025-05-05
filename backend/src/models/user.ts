@@ -6,12 +6,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Klucz i wektor inicjalizacyjny dla szyfrowania/deszyfrowania klucza API
-// Uwaga: Dla produkcji te wartości powinny być przechowywane w bezpiecznym miejscu (np. zmiennych środowiskowych)
 const ENCRYPTION_KEY =
   process.env.API_KEY_ENCRYPTION_KEY ||
-  'defaultEncryptionKey12345678901234567890'; // Klucz powinien mieć 32 bajty (256 bitów)
-const IV_LENGTH = 16; // Dla AES, IV powinien mieć 16 bajtów (128 bitów)
+  'defaultEncryptionKey12345678901234567890';
+const IV_LENGTH = 16;
 
 interface IUser extends mongoose.Document {
   username: string;
@@ -84,12 +82,9 @@ const userSchema = new Schema(
   }
 );
 
-// Funkcja do sprawdzania, czy string wygląda jak zaszyfrowany klucz API
 function looksEncrypted(text: string): boolean {
   if (!text) return false;
 
-  // Szukamy wzorca: [HEX reprezetnacja IV]:[HEX reprezentacja zaszyfrowanych danych]
-  // IV ma 16 bajtów, co daje 32 znaki w HEX
   const parts = text.split(':');
   return (
     parts.length === 2 &&
@@ -98,33 +93,29 @@ function looksEncrypted(text: string): boolean {
   );
 }
 
-// Funkcja do szyfrowania klucza API
 function encryptApiKey(text: string): string {
   if (!text) return '';
 
-  // Nie szyfruj ponownie, jeśli klucz wygląda na już zaszyfrowany
   if (looksEncrypted(text)) {
     return text;
   }
 
   try {
     const iv = crypto.randomBytes(IV_LENGTH);
-    const key = Buffer.from(ENCRYPTION_KEY.padEnd(32).slice(0, 32)); // Upewniamy się, że klucz ma dokładnie 32 bajty
+    const key = Buffer.from(ENCRYPTION_KEY.padEnd(32).slice(0, 32));
     const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
     let encrypted = cipher.update(text, 'utf8', 'hex');
     encrypted += cipher.final('hex');
     return `${iv.toString('hex')}:${encrypted}`;
   } catch (error) {
     console.error('Błąd podczas szyfrowania klucza API:', error);
-    return text; // W przypadku błędu zwracamy oryginalny tekst dla bezpieczeństwa
+    return text;
   }
 }
 
-// Funkcja do deszyfrowania klucza API
 function decryptApiKey(text: string): string {
   if (!text) return '';
 
-  // Jeśli to nie wygląda na zaszyfrowany tekst, zwróć go bez zmian
   if (!looksEncrypted(text)) {
     return text;
   }
@@ -135,7 +126,7 @@ function decryptApiKey(text: string): string {
 
     const iv = Buffer.from(textParts[0], 'hex');
     const encryptedText = textParts[1];
-    const key = Buffer.from(ENCRYPTION_KEY.padEnd(32).slice(0, 32)); // Upewniamy się, że klucz ma dokładnie 32 bajty
+    const key = Buffer.from(ENCRYPTION_KEY.padEnd(32).slice(0, 32));
 
     const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
     let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
@@ -143,15 +134,13 @@ function decryptApiKey(text: string): string {
     return decrypted;
   } catch (error) {
     console.error('Błąd podczas deszyfrowania klucza API:', error);
-    return ''; // W przypadku błędu zwracamy pusty string
+    return '';
   }
 }
 
-// Middleware do szyfrowania klucza API przed zapisem
 userSchema.pre(
   'save',
   async function (this: IUser, next: (err?: Error) => void) {
-    // Jeśli hasło zostało zmodyfikowane, zahaszuj je
     if (this.isModified('password')) {
       try {
         const salt = await bcrypt.genSalt(10);
@@ -161,7 +150,6 @@ userSchema.pre(
       }
     }
 
-    // Jeśli klucz API został zmodyfikowany, zaszyfruj go
     if (this.isModified('apiKey') && this.apiKey) {
       try {
         console.log(
@@ -186,7 +174,6 @@ userSchema.pre(
   }
 );
 
-// Metoda dla instancji do deszyfrowania klucza API
 userSchema.methods.getDecryptedApiKey = function (): string | null {
   if (!this.apiKey) return null;
 
@@ -200,9 +187,7 @@ userSchema.methods.comparePassword = async function (
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Middleware do szyfrowania klucza API przy aktualizacji dokumentu
 userSchema.pre('findOneAndUpdate', function (next) {
-  // Poprawne typowanie dla mongoose
   const update = this.getUpdate() as mongoose.UpdateQuery<IUser>;
 
   if (update && '$set' in update && update.$set && update.$set.apiKey) {
