@@ -16,15 +16,34 @@ export function ApiKeyDialog({ isOpen, onClose }: ApiKeyDialogProps) {
 
   // Load the API key from user's account or localStorage on component mount
   useEffect(() => {
-    // First try to get API key from authenticated user
-    const user = authApi.getCurrentUser();
-    if (user?.apiKey) {
-      setApiKey(user.apiKey);
+    // Clear previous states
+    setError(null);
+    setSuccess(null);
+
+    // First try to get API key from localStorage (the most up-to-date source)
+    const savedKey = localStorage.getItem('user_glhf_api_key');
+
+    if (savedKey) {
+      console.log('[ApiKeyDialog] Found API key in localStorage');
+      setApiKey(savedKey);
+
+      // Also make sure it's synced to user object if authenticated
+      const user = authApi.getCurrentUser();
+      if (user && (!user.apiKey || user.apiKey !== savedKey)) {
+        console.log(
+          '[ApiKeyDialog] Syncing API key to user object in localStorage'
+        );
+        const updatedUser = { ...user, apiKey: savedKey };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
     } else {
-      // Fall back to localStorage if not in user data
-      const savedKey = localStorage.getItem('user_glhf_api_key');
-      if (savedKey) {
-        setApiKey(savedKey);
+      // If not in localStorage, try from user data
+      const user = authApi.getCurrentUser();
+      if (user?.apiKey) {
+        console.log('[ApiKeyDialog] Found API key in user data');
+        setApiKey(user.apiKey);
+        // Make sure it's saved to localStorage for consistency
+        localStorage.setItem('user_glhf_api_key', user.apiKey);
       }
     }
   }, [isOpen]);

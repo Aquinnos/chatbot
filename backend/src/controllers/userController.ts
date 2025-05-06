@@ -2,6 +2,9 @@ import { Request, Response } from 'express';
 import User from '../models/user';
 import jwt, { SignOptions } from 'jsonwebtoken';
 
+// Domyślny klucz API dla użytkowników, jeśli nie mają własnego
+const DEFAULT_API_KEY = 'glhf_default_key_for_users';
+
 export const createUser = async (req: Request, res: Response) => {
   const { username, email, password } = req.body;
   try {
@@ -43,13 +46,7 @@ export const loginUser = async (req: Request, res: Response) => {
       return;
     }
 
-    console.log(
-      `User found: ${user.username}, password in DB (hashed): ${user.password}`
-    );
-    console.log(`Comparing provided password with hashed password in DB`);
-
     const isPasswordValid = await user.comparePassword(password);
-    console.log(`Password comparison result: ${isPasswordValid}`);
 
     if (!isPasswordValid) {
       console.log(`Invalid password for user: ${user.username}`);
@@ -65,11 +62,23 @@ export const loginUser = async (req: Request, res: Response) => {
       { expiresIn: process.env.JWT_EXPIRATION || '1d' } as SignOptions
     );
 
+    // Sprawdzenie czy użytkownik ma klucz API, jeśli nie - przypisanie domyślnego
+    if (!user.apiKey) {
+      console.log(`User ${user.username} has no API key. Setting default key.`);
+      user.apiKey = DEFAULT_API_KEY;
+      await user.save();
+      console.log(`Default API key has been set for user ${user.username}`);
+    }
+
+    // Get the decrypted API key to include in the response
+    const decryptedApiKey = user.getDecryptedApiKey();
+
     res.status(200).json({
       id: user._id,
       username: user.username,
       email: user.email,
       token,
+      apiKey: decryptedApiKey,
     });
   } catch (error) {
     console.error('Error logging in user:', error);

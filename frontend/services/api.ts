@@ -95,6 +95,16 @@ export const authApi = {
         throw new Error('Invalid user data received from server');
       }
 
+      // Debug: Log the user data received from login response
+      console.log(
+        'Login response received:',
+        JSON.stringify(userData, null, 2)
+      );
+      console.log('API Key in login response:', userData.apiKey);
+
+      // WAŻNE: Najpierw usuwamy poprzednie dane z localStorage, żeby nie mieszać danych między użytkownikami
+      localStorage.removeItem('user_glhf_api_key');
+
       // Store authentication data in both cookie and localStorage
       // Cookie will be used by middleware for server-side auth checks
       // localStorage will be used for client-side checks
@@ -102,8 +112,18 @@ export const authApi = {
       localStorage.setItem('user', JSON.stringify(userData));
       localStorage.setItem('token', userData.token);
 
+      // Store API key from login response if it exists
+      if (userData.apiKey) {
+        console.log('Setting API key in localStorage:', userData.apiKey);
+        localStorage.setItem('user_glhf_api_key', userData.apiKey);
+      } else {
+        console.log('No API key found in login response');
+      }
+
       // After successful login, get the complete user profile to have access to apiKey
+      // This is just a backup in case the login response doesn't include the apiKey
       try {
+        console.log('Fetching complete profile after login...');
         const profileResponse = await fetch(`${API_BASE_URL}/users`, {
           headers: {
             Authorization: `Bearer ${userData.token}`,
@@ -114,27 +134,28 @@ export const authApi = {
 
         if (profileResponse.ok) {
           const profileData = await profileResponse.json();
+          console.log(
+            'Profile data received:',
+            JSON.stringify(profileData, null, 2)
+          );
+          console.log('API Key in profile:', profileData.apiKey);
 
           // If user has an API key stored in their profile, use it locally
           if (profileData.apiKey) {
             // Save to localStorage for API usage
+            console.log(
+              'Setting API key from profile to localStorage:',
+              profileData.apiKey
+            );
             localStorage.setItem('user_glhf_api_key', profileData.apiKey);
 
             // Update the userData with the apiKey value
             userData.apiKey = profileData.apiKey;
             localStorage.setItem('user', JSON.stringify(userData));
           } else {
-            const localApiKey = localStorage.getItem('user_glhf_api_key');
-            if (localApiKey) {
-              try {
-                await authApi.updateApiKey(localApiKey);
-              } catch (error) {
-                console.error(
-                  "Failed to sync local API key to user's account:",
-                  error
-                );
-              }
-            }
+            console.log('No API key found in profile response');
+            // Usuwamy kod, który automatycznie synchronizował lokalny klucz API do serwera
+            // To jest źródło problemu z "przeskakiwaniem" kluczy między użytkownikami
           }
         }
       } catch (error) {

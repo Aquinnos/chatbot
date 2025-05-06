@@ -114,7 +114,9 @@ function encryptApiKey(text: string): string {
 }
 
 function decryptApiKey(text: string): string {
-  if (!text) return '';
+  if (!text) {
+    return '';
+  }
 
   if (!looksEncrypted(text)) {
     return text;
@@ -122,7 +124,9 @@ function decryptApiKey(text: string): string {
 
   try {
     const textParts = text.split(':');
-    if (textParts.length !== 2) return text;
+    if (textParts.length !== 2) {
+      return text;
+    }
 
     const iv = Buffer.from(textParts[0], 'hex');
     const encryptedText = textParts[1];
@@ -131,6 +135,7 @@ function decryptApiKey(text: string): string {
     const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
     let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
+
     return decrypted;
   } catch (error) {
     console.error('Błąd podczas deszyfrowania klucza API:', error);
@@ -152,18 +157,8 @@ userSchema.pre(
 
     if (this.isModified('apiKey') && this.apiKey) {
       try {
-        console.log(
-          `Szyfrowanie klucza API dla użytkownika ${this.username}...`
-        );
         const originalKey = this.apiKey;
         this.apiKey = encryptApiKey(originalKey);
-        console.log(
-          `Klucz API ${originalKey.substring(0, 6)}*** został ${
-            this.apiKey !== originalKey
-              ? 'zaszyfrowany'
-              : 'pozostawiony bez zmian'
-          }`
-        );
       } catch (error) {
         console.error('Błąd podczas szyfrowania klucza API:', error);
         return next(error as Error);
@@ -191,10 +186,8 @@ userSchema.pre('findOneAndUpdate', function (next) {
   const update = this.getUpdate() as mongoose.UpdateQuery<IUser>;
 
   if (update && '$set' in update && update.$set && update.$set.apiKey) {
-    console.log('Szyfrowanie klucza API przed aktualizacją dokumentu...');
     update.$set.apiKey = encryptApiKey(update.$set.apiKey);
   } else if (update && 'apiKey' in update) {
-    console.log('Szyfrowanie klucza API przed aktualizacją dokumentu...');
     update.apiKey = encryptApiKey(update.apiKey);
   }
 
