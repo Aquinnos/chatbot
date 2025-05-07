@@ -14,20 +14,16 @@ export function ApiKeyDialog({ isOpen, onClose }: ApiKeyDialogProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Load the API key from user's account or localStorage on component mount
   useEffect(() => {
-    // Clear previous states
     setError(null);
     setSuccess(null);
 
-    // First try to get API key from localStorage (the most up-to-date source)
     const savedKey = localStorage.getItem('user_glhf_api_key');
 
     if (savedKey) {
       console.log('[ApiKeyDialog] Found API key in localStorage');
       setApiKey(savedKey);
 
-      // Also make sure it's synced to user object if authenticated
       const user = authApi.getCurrentUser();
       if (user && (!user.apiKey || user.apiKey !== savedKey)) {
         console.log(
@@ -37,12 +33,10 @@ export function ApiKeyDialog({ isOpen, onClose }: ApiKeyDialogProps) {
         localStorage.setItem('user', JSON.stringify(updatedUser));
       }
     } else {
-      // If not in localStorage, try from user data
       const user = authApi.getCurrentUser();
       if (user?.apiKey) {
         console.log('[ApiKeyDialog] Found API key in user data');
         setApiKey(user.apiKey);
-        // Make sure it's saved to localStorage for consistency
         localStorage.setItem('user_glhf_api_key', user.apiKey);
       }
     }
@@ -54,7 +48,6 @@ export function ApiKeyDialog({ isOpen, onClose }: ApiKeyDialogProps) {
     setSuccess(null);
 
     try {
-      // Validate API key format (basic check)
       if (apiKey && !apiKey.startsWith('glhf_')) {
         setError(
           'Invalid API key format. GLHF API keys should start with "glhf_"'
@@ -63,14 +56,12 @@ export function ApiKeyDialog({ isOpen, onClose }: ApiKeyDialogProps) {
         return;
       }
 
-      // Save to localStorage for immediate use
       if (apiKey) {
         localStorage.setItem('user_glhf_api_key', apiKey);
       } else {
         localStorage.removeItem('user_glhf_api_key');
       }
 
-      // Verify the API key works by making a test request
       const response = await fetch('/api/verify-key', {
         method: 'POST',
         headers: {
@@ -85,7 +76,6 @@ export function ApiKeyDialog({ isOpen, onClose }: ApiKeyDialogProps) {
         throw new Error(result.error || 'Failed to verify API key');
       }
 
-      // If user is authenticated, also save to the backend
       if (authApi.isAuthenticated()) {
         try {
           await authApi.updateApiKey(apiKey);
@@ -100,10 +90,8 @@ export function ApiKeyDialog({ isOpen, onClose }: ApiKeyDialogProps) {
         setSuccess('API key verified and saved locally.');
       }
 
-      // Close the dialog after a short delay
       setTimeout(() => {
         onClose();
-        // Force page reload to apply the new API key
         window.location.reload();
       }, 1500);
     } catch (err) {
@@ -119,7 +107,6 @@ export function ApiKeyDialog({ isOpen, onClose }: ApiKeyDialogProps) {
     setApiKey('');
     localStorage.removeItem('user_glhf_api_key');
 
-    // If user is authenticated, also clear from the backend
     if (authApi.isAuthenticated()) {
       try {
         await authApi.updateApiKey('');
@@ -136,7 +123,6 @@ export function ApiKeyDialog({ isOpen, onClose }: ApiKeyDialogProps) {
 
     setTimeout(() => {
       onClose();
-      // Force page reload to apply the change
       window.location.reload();
     }, 1500);
   };

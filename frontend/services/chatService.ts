@@ -6,6 +6,16 @@ export interface BackendMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
+  media?: BackendMedia[];
+}
+
+export interface BackendMedia {
+  _id: string;
+  type: 'image' | 'audio' | 'video' | 'file';
+  url: string;
+  filename: string;
+  mimetype: string;
+  size: number;
 }
 
 export interface BackendChat {
@@ -26,6 +36,14 @@ const convertBackendToFrontendChat = (backendChat: BackendChat): ChatType => {
       role: msg.role,
       content: msg.content,
       timestamp: new Date(msg.timestamp),
+      media: msg.media?.map((m) => ({
+        id: m._id,
+        type: m.type,
+        url: `${API_URL}${m.url}`,
+        filename: m.filename,
+        mimetype: m.mimetype,
+        size: m.size,
+      })),
     })),
     model: undefined, // TODO: Add model to backend chat schema if needed
     createdAt: new Date(backendChat.createdAt),
@@ -136,6 +154,53 @@ export const chatService = {
 
     if (!response.ok) {
       throw new Error('Failed to delete chat');
+    }
+  },
+
+  // Upload media to an existing message
+  async uploadMedia(
+    token: string,
+    chatId: string,
+    messageId: string,
+    file: File
+  ): Promise<BackendMedia> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch(
+      `${API_URL}/chats/${chatId}/messages/${messageId}/media`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    );
+    if (!response.ok) {
+      throw new Error('Failed to upload media');
+    }
+    const data = await response.json();
+    return data.media as BackendMedia;
+  },
+
+  // Delete media from a message
+  async deleteMedia(
+    token: string,
+    chatId: string,
+    messageId: string,
+    mediaId: string
+  ): Promise<void> {
+    const response = await fetch(
+      `${API_URL}/chats/${chatId}/messages/${messageId}/media/${mediaId}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error('Failed to delete media');
     }
   },
 };

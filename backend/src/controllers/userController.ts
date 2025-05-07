@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import User from '../models/user';
 import jwt, { SignOptions } from 'jsonwebtoken';
 
-// Domyślny klucz API dla użytkowników, jeśli nie mają własnego
+// Default API key for users who don't have one
 const DEFAULT_API_KEY = 'glhf_default_key_for_users';
 
 export const createUser = async (req: Request, res: Response) => {
@@ -62,7 +62,6 @@ export const loginUser = async (req: Request, res: Response) => {
       { expiresIn: process.env.JWT_EXPIRATION || '1d' } as SignOptions
     );
 
-    // Sprawdzenie czy użytkownik ma klucz API, jeśli nie - przypisanie domyślnego
     if (!user.apiKey) {
       console.log(`User ${user.username} has no API key. Setting default key.`);
       user.apiKey = DEFAULT_API_KEY;
@@ -70,7 +69,6 @@ export const loginUser = async (req: Request, res: Response) => {
       console.log(`Default API key has been set for user ${user.username}`);
     }
 
-    // Get the decrypted API key to include in the response
     const decryptedApiKey = user.getDecryptedApiKey();
 
     res.status(200).json({

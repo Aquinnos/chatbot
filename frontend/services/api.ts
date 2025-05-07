@@ -46,7 +46,6 @@ const getCookie = (name: string) => {
 
 // Authentication API calls
 export const authApi = {
-  // Register a new user
   register: async (data: RegisterParams): Promise<void> => {
     const response = await fetch(`${API_BASE_URL}/users`, {
       method: 'POST',
@@ -54,7 +53,7 @@ export const authApi = {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),
-      credentials: 'include', // Include cookies in the request
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -75,7 +74,7 @@ export const authApi = {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
-        credentials: 'include', // Include cookies in the request
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -95,24 +94,18 @@ export const authApi = {
         throw new Error('Invalid user data received from server');
       }
 
-      // Debug: Log the user data received from login response
       console.log(
         'Login response received:',
         JSON.stringify(userData, null, 2)
       );
       console.log('API Key in login response:', userData.apiKey);
 
-      // WAŻNE: Najpierw usuwamy poprzednie dane z localStorage, żeby nie mieszać danych między użytkownikami
       localStorage.removeItem('user_glhf_api_key');
 
-      // Store authentication data in both cookie and localStorage
-      // Cookie will be used by middleware for server-side auth checks
-      // localStorage will be used for client-side checks
       setCookie('token', userData.token);
       localStorage.setItem('user', JSON.stringify(userData));
       localStorage.setItem('token', userData.token);
 
-      // Store API key from login response if it exists
       if (userData.apiKey) {
         console.log('Setting API key in localStorage:', userData.apiKey);
         localStorage.setItem('user_glhf_api_key', userData.apiKey);
@@ -120,8 +113,6 @@ export const authApi = {
         console.log('No API key found in login response');
       }
 
-      // After successful login, get the complete user profile to have access to apiKey
-      // This is just a backup in case the login response doesn't include the apiKey
       try {
         console.log('Fetching complete profile after login...');
         const profileResponse = await fetch(`${API_BASE_URL}/users`, {
@@ -140,22 +131,17 @@ export const authApi = {
           );
           console.log('API Key in profile:', profileData.apiKey);
 
-          // If user has an API key stored in their profile, use it locally
           if (profileData.apiKey) {
-            // Save to localStorage for API usage
             console.log(
               'Setting API key from profile to localStorage:',
               profileData.apiKey
             );
             localStorage.setItem('user_glhf_api_key', profileData.apiKey);
 
-            // Update the userData with the apiKey value
             userData.apiKey = profileData.apiKey;
             localStorage.setItem('user', JSON.stringify(userData));
           } else {
             console.log('No API key found in profile response');
-            // Usuwamy kod, który automatycznie synchronizował lokalny klucz API do serwera
-            // To jest źródło problemu z "przeskakiwaniem" kluczy między użytkownikami
           }
         }
       } catch (error) {
@@ -184,23 +170,19 @@ export const authApi = {
   },
 
   getToken: (): string | null => {
-    // Try from cookie first, then localStorage
     return getCookie('token') || localStorage.getItem('token');
   },
 
-  // Check if user is authenticated
   isAuthenticated: (): boolean => {
     return !!getCookie('token') || !!localStorage.getItem('token');
   },
 
-  // Update user profile
   updateProfile: async (data: UpdateProfileParams): Promise<User> => {
     const response = await authApi.authenticatedRequest('/users', {
       method: 'PUT',
       body: JSON.stringify(data),
     });
 
-    // Update the stored user data with new information
     const currentUserData = authApi.getCurrentUser();
     if (currentUserData) {
       const updatedUserData = {
@@ -214,14 +196,12 @@ export const authApi = {
     return response;
   },
 
-  // Update user's API key
   updateApiKey: async (apiKey: string): Promise<User> => {
     const response = await authApi.authenticatedRequest('/api-key', {
       method: 'PUT',
       body: JSON.stringify({ apiKey }),
     });
 
-    // Update the stored user data with new API key
     const currentUserData = authApi.getCurrentUser();
     if (currentUserData) {
       const updatedUserData = {
@@ -234,7 +214,6 @@ export const authApi = {
     return response;
   },
 
-  // Make an authenticated API request
   authenticatedRequest: async (url: string, options: RequestInit = {}) => {
     const token = authApi.getToken();
 
@@ -250,10 +229,8 @@ export const authApi = {
 
     const response = await fetch(`${API_BASE_URL}${url}`, authOptions);
 
-    // Handle token expiration
     if (response.status === 401) {
       authApi.logout();
-      // Redirect to login page
       window.location.href = '/auth/login';
       throw new Error('Your session has expired. Please log in again.');
     }
