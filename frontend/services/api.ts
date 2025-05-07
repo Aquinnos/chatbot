@@ -100,7 +100,10 @@ export const authApi = {
       );
       console.log('API Key in login response:', userData.apiKey);
 
-      localStorage.removeItem('user_glhf_api_key');
+
+      if (userData.apiKey) {
+        localStorage.removeItem('user_glhf_api_key');
+      }
 
       setCookie('token', userData.token);
       localStorage.setItem('user', JSON.stringify(userData));

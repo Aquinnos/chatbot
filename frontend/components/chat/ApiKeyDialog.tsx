@@ -37,7 +37,14 @@ export function ApiKeyDialog({ isOpen, onClose }: ApiKeyDialogProps) {
       if (user?.apiKey) {
         console.log('[ApiKeyDialog] Found API key in user data');
         setApiKey(user.apiKey);
-        localStorage.setItem('user_glhf_api_key', user.apiKey);
+
+        if (
+          user.apiKey.trim() &&
+          user.apiKey !== 'null' &&
+          user.apiKey !== 'undefined'
+        ) {
+          localStorage.setItem('user_glhf_api_key', user.apiKey);
+        }
       }
     }
   }, [isOpen]);

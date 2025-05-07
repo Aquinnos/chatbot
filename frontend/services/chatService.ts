@@ -1,4 +1,5 @@
 import { ChatType, MessageType } from '@/components/chat/types';
+import { defaultModel } from '@/lib/models';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
@@ -45,7 +46,7 @@ const convertBackendToFrontendChat = (backendChat: BackendChat): ChatType => {
         size: m.size,
       })),
     })),
-    model: undefined, // TODO: Add model to backend chat schema if needed
+    model: defaultModel, // Using defaultModel instead of undefined
     createdAt: new Date(backendChat.createdAt),
     updatedAt: new Date(backendChat.updatedAt),
   };

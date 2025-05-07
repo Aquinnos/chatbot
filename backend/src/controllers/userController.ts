@@ -35,39 +35,41 @@ export const createUser = async (req: Request, res: Response) => {
 };
 
 export const loginUser = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
   try {
-    console.log(`Attempting login for email: ${email}`);
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      res.status(400).json({ message: 'Email and password are required' });
+      return;
+    }
+
     const user = await User.findOne({ email });
 
     if (!user) {
-      console.log(`User not found for email: ${email}`);
       res.status(404).json({ message: 'User not found' });
       return;
     }
 
-    const isPasswordValid = await user.comparePassword(password);
-
-    if (!isPasswordValid) {
-      console.log(`Invalid password for user: ${user.username}`);
+    const passwordIsMatch = await user.comparePassword(password);
+    if (!passwordIsMatch) {
       res.status(401).json({ message: 'Invalid password' });
       return;
     }
 
-    console.log(`Login successful for user: ${user.username}`);
-
     const token = jwt.sign(
-      { id: user._id, email: user.email, username: user.username },
-      process.env.JWT_SECRET || 'defaultsecret',
-      { expiresIn: process.env.JWT_EXPIRATION || '1d' } as SignOptions
+      { id: user._id },
+      process.env.JWT_SECRET || 'secret-key',
+      { expiresIn: '30d' }
     );
 
-    if (!user.apiKey) {
-      console.log(`User ${user.username} has no API key. Setting default key.`);
-      user.apiKey = DEFAULT_API_KEY;
-      await user.save();
-      console.log(`Default API key has been set for user ${user.username}`);
-    }
+    // Nie ustawiaj domyślnego klucza API - wyślij taki, jaki jest w bazie danych
+    // Dzięki temu jeśli użytkownik nie ma klucza API, to nie zostanie on automatycznie ustawiony
+    // if (!user.apiKey) {
+    //   console.log(`User ${user.username} has no API key. Setting default key.`);
+    //   user.apiKey = DEFAULT_API_KEY;
+    //   await user.save();
+    //   console.log(`Default API key has been set for user ${user.username}`);
+    // }
 
     const decryptedApiKey = user.getDecryptedApiKey();
 
