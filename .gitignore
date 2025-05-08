@@ -8,11 +8,12 @@ coverage/
 
 # Next.js
 .next/
-out/
+frontend/out/
 
 # Produkcja
 build/
 dist/
+backend/dist/
 
 # Różne
 .DS_Store
@@ -26,6 +27,7 @@ yarn-error.log*
 # Lokalne pliki środowiskowe
 .env
 .env*.local
+backend/.env
 
 # Vercel
 .vercel
