@@ -82,7 +82,7 @@ export function ChatHeader({
 
   return (
     <>
-      <div className="flex flex-row justify-between items-center p-3 border-b dark:border-zinc-700">
+      <div className="flex flex-row justify-between items-center p-3 border-b dark:border-zinc-700 bg-white dark:bg-zinc-900">
         <div className="flex items-center w-auto mr-2">
           <button
             onClick={() => setChatSidebarOpen(!chatSidebarOpen)}
@@ -104,7 +104,7 @@ export function ChatHeader({
               />
             </svg>
           </button>
-          <h2 className="text-lg font-semibold truncate max-w-[200px]">
+          <h2 className="text-base sm:text-lg font-semibold truncate max-w-[150px] sm:max-w-[200px]">
             {getActiveChatTitle()}
           </h2>
         </div>
@@ -162,7 +162,7 @@ export function ChatHeader({
         </div>
 
         {/* Mobile view - use MobileMenu component */}
-        <div className="sm:hidden">
+        <div className="sm:hidden relative z-[80]">
           <MobileMenu
             onApiKeyClick={() => setApiKeyDialogOpen(true)}
             onSettingsClick={() => setConfigOpen(!configOpen)}

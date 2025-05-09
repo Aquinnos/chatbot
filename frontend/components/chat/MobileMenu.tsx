@@ -20,9 +20,7 @@ export function MobileMenu({
   onClearChatClick,
   onProfileClick,
   onLogoutClick,
-  models,
   selectedModel,
-  onModelSelect,
 }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -36,11 +34,15 @@ export function MobileMenu({
   };
 
   return (
-    <div className="relative">
+    <div className="relative z-[80]">
       <button
         onClick={toggleMenu}
-        className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-zinc-700"
+        className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-zinc-700 pointer-event-fix"
         aria-label="Menu"
+        style={{
+          touchAction: 'manipulation',
+          WebkitTapHighlightColor: 'transparent',
+        }}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -61,10 +63,10 @@ export function MobileMenu({
       {isOpen && (
         <>
           <div
-            className="fixed inset-0 bg-black/30 z-10"
+            className="fixed inset-0 bg-black/70 z-[75]"
             onClick={() => setIsOpen(false)}
           ></div>
-          <div className="absolute right-0 mt-2 w-60 rounded-md shadow-lg bg-white dark:bg-zinc-800 ring-1 ring-black ring-opacity-5 z-20">
+          <div className="absolute right-0 mt-2 w-60 rounded-md shadow-lg bg-white dark:bg-zinc-800 ring-1 ring-black ring-opacity-5 z-[80]">
             <div className="py-1" role="menu" aria-orientation="vertical">
               <button
                 onClick={() => handleMenuItemClick(onApiKeyClick)}
@@ -84,24 +86,35 @@ export function MobileMenu({
                 <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
                   Model
                 </label>
-                <select
-                  value={selectedModel.id}
-                  onChange={(e) => {
-                    const selectedModel = models.find(
-                      (model) => model.id === e.target.value
-                    );
-                    if (selectedModel) {
-                      handleMenuItemClick(() => onModelSelect(selectedModel));
-                    }
-                  }}
-                  className="w-full p-1.5 bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-600 rounded text-sm"
-                >
-                  {models.map((model) => (
-                    <option key={model.id} value={model.id}>
-                      {model.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <button
+                    className="w-full p-1.5 bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-600 rounded text-sm text-left flex justify-between items-center"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      window.location.href = '/models';
+                      setIsOpen(false);
+                    }}
+                    style={{
+                      touchAction: 'manipulation',
+                      WebkitTapHighlightColor: 'transparent',
+                    }}
+                  >
+                    <span>{selectedModel.name}</span>
+                    <svg
+                      className="w-4 h-4 ml-1 text-gray-500"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </div>
               </div>
               <button
                 onClick={() => handleMenuItemClick(onClearChatClick)}

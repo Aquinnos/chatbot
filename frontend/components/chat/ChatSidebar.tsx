@@ -1,7 +1,6 @@
 'use client';
 
 import { ChatType } from './types';
-import Link from 'next/link';
 
 interface ChatSidebarProps {
   chats: ChatType[];
@@ -29,7 +28,7 @@ export function ChatSidebar({
       {/* Mobile overlay when sidebar is open */}
       {chatSidebarOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black/30 z-10"
+          className="md:hidden fixed inset-0 bg-black/50 z-30"
           onClick={() => setChatSidebarOpen(false)}
         ></div>
       )}
@@ -37,7 +36,8 @@ export function ChatSidebar({
       <div
         className={`${
           chatSidebarOpen ? 'flex' : 'hidden md:flex'
-        } flex-col w-64 h-full border-r dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800 transition-all duration-300 z-20 absolute md:relative inset-y-0 left-0`}
+        } flex-col w-64 h-full border-r dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800 transition-all duration-300 z-50 absolute md:relative inset-y-0 left-0`}
+        style={{ isolation: 'isolate' }}
       >
         <div className="p-4 border-b dark:border-zinc-700 flex justify-between items-center">
           <h2 className="font-semibold">Your chats</h2>
@@ -139,13 +139,41 @@ export function ChatSidebar({
           )}
         </div>
 
-        <div className="p-3 border-t dark:border-zinc-700">
-          <Link
-            href="/models"
-            className="flex items-center justify-center p-2 bg-[#1DCD9F] hover:bg-primary-dark rounded-md text-sm transition-colors"
+        <div className="relative p-3 border-t dark:border-zinc-700 z-[60]">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              window.location.href = '/models';
+            }}
+            className="block relative z-[90] w-full text-center p-3 bg-[#1DCD9F] hover:bg-[#169976] text-white rounded-md text-sm font-medium transition-colors shadow-md"
+            style={{
+              isolation: 'isolate',
+              transform: 'translateZ(0)',
+              pointerEvents: 'auto',
+              touchAction: 'manipulation',
+              position: 'relative',
+            }}
           >
-            <span>See the list of models</span>
-          </Link>
+            <span className="flex items-center justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                style={{ flexShrink: 0 }}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                />
+              </svg>
+              <span className="whitespace-nowrap">View Available Models</span>
+            </span>
+          </button>
         </div>
       </div>
     </>

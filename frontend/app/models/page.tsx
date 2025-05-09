@@ -40,17 +40,47 @@ export default function ModelsPage() {
       }
     }
 
-    router.push('/');
+    router.push('/chat');
   };
 
   return (
     <main className="p-4 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Available AI Models</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 bg-white dark:bg-zinc-900 p-4 rounded-lg shadow-sm">
+        <div className="flex items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 mr-2 text-[#1DCD9F]"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+            />
+          </svg>
+          <h1 className="text-xl sm:text-2xl font-bold">Available AI Models</h1>
+        </div>
         <Link
-          href="/"
-          className="px-4 py-2 bg-[#1DCD9F] hover:bg-[#169976] text-white rounded-md"
+          href="/chat"
+          className="inline-flex items-center px-4 py-2 bg-[#1DCD9F] hover:bg-[#169976] text-white rounded-md text-sm font-medium"
         >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4 mr-1"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
           Return to chat
         </Link>
       </div>

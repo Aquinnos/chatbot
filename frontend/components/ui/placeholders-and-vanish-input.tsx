@@ -9,16 +9,18 @@ export function PlaceholdersAndVanishInput({
   value,
   onChange,
   onSubmit,
+  className,
 }: {
   placeholders: string[];
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  className?: string;
 }) {
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
   const [localValue, setLocalValue] = useState(value);
   const [animating, setAnimating] = useState(false);
-  
+
   // Add a constant placeholder rotation interval (in milliseconds)
   const PLACEHOLDER_ROTATION_INTERVAL = 3000;
 
@@ -35,7 +37,7 @@ export function PlaceholdersAndVanishInput({
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
-    
+
     intervalRef.current = setInterval(() => {
       setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
     }, PLACEHOLDER_ROTATION_INTERVAL);
@@ -242,10 +244,17 @@ export function PlaceholdersAndVanishInput({
   return (
     <form
       className={cn(
-        'min-w-full relative max-w-xl mx-auto bg-white dark:bg-zinc-800 h-12 rounded-lg  overflow-hidden shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),_0px_1px_0px_0px_rgba(25,28,33,0.02),_0px_0px_0px_1px_rgba(25,28,33,0.08)] transition duration-200',
-        localValue && 'bg-gray-50'
+        'min-w-full relative max-w-xl mx-auto bg-white dark:bg-zinc-800 h-12 rounded-lg overflow-hidden shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),_0px_1px_0px_0px_rgba(25,28,33,0.02),_0px_0px_0px_1px_rgba(25,28,33,0.08)] transition duration-200',
+        localValue && 'bg-gray-50',
+        className
       )}
       onSubmit={handleSubmit}
+      style={{
+        isolation: 'isolate',
+        position: 'relative',
+        zIndex: 1,
+        pointerEvents: 'auto',
+      }}
     >
       <canvas
         className={cn(
@@ -261,15 +270,24 @@ export function PlaceholdersAndVanishInput({
         value={localValue}
         type="text"
         className={cn(
-          'w-full relative text-sm sm:text-base z-50 border-none dark:text-white bg-transparent text-black h-full rounded-full focus:outline-none focus:ring-0 pl-4 sm:pl-10 pr-20',
+          'w-full relative text-sm sm:text-base z-1 border-none dark:text-white bg-transparent text-black h-full rounded-full focus:outline-none focus:ring-0 pl-4 sm:pl-10 pr-20',
           animating && 'text-transparent dark:text-transparent'
         )}
+        style={{
+          touchAction: 'manipulation',
+          pointerEvents: 'auto',
+          WebkitAppearance: 'none',
+        }}
       />
 
       <button
         disabled={!localValue}
         type="submit"
-        className="absolute right-2 top-1/2 z-50 -translate-y-1/2 h-8 w-8 rounded-full disabled:bg-gray-100 bg-black dark:bg-zinc-900 dark:disabled:bg-zinc-800 transition duration-200 flex items-center justify-center"
+        className="absolute right-2 top-1/2 z-5 -translate-y-1/2 h-8 w-8 rounded-full disabled:bg-gray-100 bg-black dark:bg-zinc-900 dark:disabled:bg-zinc-800 transition duration-200 flex items-center justify-center"
+        style={{
+          touchAction: 'manipulation',
+          WebkitTapHighlightColor: 'transparent',
+        }}
       >
         <motion.svg
           xmlns="http://www.w3.org/2000/svg"

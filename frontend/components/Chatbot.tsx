@@ -49,16 +49,18 @@ export default function Chatbot() {
   return (
     <div className="flex h-[85vh] max-w-screen-xl mx-auto relative overflow-hidden">
       {/* Sidebar showing all available chats */}
-      <ChatSidebar
-        chats={chats}
-        activeChat={activeChat}
-        chatSidebarOpen={chatSidebarOpen}
-        setChatSidebarOpen={setChatSidebarOpen}
-        createNewChat={createNewChat}
-        switchChat={switchChat}
-        deleteChat={deleteChat}
-        formatDate={formatDate}
-      />
+      <div className="relative z-[70]">
+        <ChatSidebar
+          chats={chats}
+          activeChat={activeChat}
+          chatSidebarOpen={chatSidebarOpen}
+          setChatSidebarOpen={setChatSidebarOpen}
+          createNewChat={createNewChat}
+          switchChat={switchChat}
+          deleteChat={deleteChat}
+          formatDate={formatDate}
+        />
+      </div>
 
       <div className="flex-1 flex flex-col h-full overflow-hidden border border-[#222222] rounded-lg">
         {/* Header with model selector and controls */}
@@ -113,7 +115,7 @@ export default function Chatbot() {
         </div>
 
         {/* Input area for sending messages */}
-        <div className="p-4 border-t border-[#222222]">
+        <div className="p-4 border-t border-[#222222] relative z-1">
           <PlaceholdersAndVanishInput
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -122,6 +124,7 @@ export default function Chatbot() {
               handleSend();
             }}
             placeholders={placeholders}
+            className="relative z-1"
           />
           <div className="text-sm text-gray-300 mt-2 text-center flex justify-center items-center">
             {isLoading && (

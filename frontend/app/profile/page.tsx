@@ -158,8 +158,10 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen flex justify-center items-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-lg">Loading your profile...</p>
+          <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-t-2 border-b-2 border-[#1dcd9f] mx-auto"></div>
+          <p className="mt-3 sm:mt-4 text-base sm:text-lg">
+            Loading your profile...
+          </p>
         </div>
       </div>
     );
@@ -167,13 +169,17 @@ export default function ProfilePage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex justify-center items-center">
-        <div className="text-center bg-red-50 p-6 rounded-lg shadow-md max-w-md">
-          <h2 className="text-2xl font-bold text-red-700 mb-4">Error</h2>
-          <p className="text-red-600 mb-4">{error}</p>
+      <div className="min-h-screen flex justify-center items-center p-4">
+        <div className="text-center bg-red-50 p-4 sm:p-6 rounded-lg shadow-md max-w-md w-full">
+          <h2 className="text-xl sm:text-2xl font-bold text-red-700 mb-3 sm:mb-4">
+            Error
+          </h2>
+          <p className="text-sm sm:text-base text-red-600 mb-3 sm:mb-4">
+            {error}
+          </p>
           <button
             onClick={handleLogout}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+            className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm bg-red-600 text-white rounded-md hover:bg-red-700"
           >
             Log out
           </button>
@@ -183,21 +189,21 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen max-w-4xl mx-auto py-12 px-4">
+    <div className="min-h-screen max-w-4xl mx-auto py-6 sm:py-12 px-4">
       <div className="bg-white dark:bg-zinc-800 shadow-lg rounded-lg overflow-hidden">
-        <div className="px-6 py-8">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold">Profile</h1>
-            <div className="flex gap-4">
+        <div className="px-4 sm:px-6 py-6 sm:py-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold">Profile</h1>
+            <div className="flex flex-wrap gap-2 sm:gap-4">
               <button
                 onClick={() => router.push('/chat')}
-                className="px-4 py-2 rounded-md bg-[#1dcd9f] text-white hover:bg-[#169976] transition-colors"
+                className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm rounded-md bg-[#1dcd9f] text-white hover:bg-[#169976] transition-colors"
               >
                 Back to Chat
               </button>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 rounded-md bg-gray-500 text-white hover:bg-gray-600 transition-colors"
+                className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm rounded-md bg-gray-500 text-white hover:bg-gray-600 transition-colors"
               >
                 Log out
               </button>
@@ -212,14 +218,14 @@ export default function ProfilePage() {
 
           {profile ? (
             isEditing ? (
-              <form onSubmit={handleUpdate} className="space-y-6 ">
+              <form onSubmit={handleUpdate} className="space-y-4 sm:space-y-6">
                 {updateError && (
-                  <div className="bg-red-50 border-l-4 border-red-500 p-4">
-                    <p className="text-red-700">{updateError}</p>
+                  <div className="bg-red-50 border-l-4 border-red-500 p-3 sm:p-4">
+                    <p className="text-sm text-red-700">{updateError}</p>
                   </div>
                 )}
 
-                <div className="space-y-2">
+                <div className="space-y-1 sm:space-y-2">
                   <label
                     htmlFor="username"
                     className="block text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -231,12 +237,12 @@ export default function ProfilePage() {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-[#1dcd9f] text-white"
+                    className="mt-1 block w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-[#1dcd9f] text-black dark:text-white dark:bg-zinc-700"
                     required
                   />
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1 sm:space-y-2">
                   <label
                     htmlFor="email"
                     className="block text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -248,15 +254,17 @@ export default function ProfilePage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-[#1dcd9f] text-white"
+                    className="mt-1 block w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-[#1dcd9f] text-black dark:text-white dark:bg-zinc-700"
                     required
                   />
                 </div>
 
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                  <h3 className="text-lg font-medium mb-4">Change Password</h3>
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-3 sm:pt-4 mt-3">
+                  <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4">
+                    Change Password
+                  </h3>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1 sm:space-y-2">
                     <label
                       htmlFor="currentPassword"
                       className="block text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -268,11 +276,11 @@ export default function ProfilePage() {
                       type="password"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-[#1dcd9f] text-white"
+                      className="mt-1 block w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-[#1dcd9f] text-black dark:text-white dark:bg-zinc-700"
                     />
                   </div>
 
-                  <div className="space-y-2 mt-4">
+                  <div className="space-y-1 sm:space-y-2 mt-3 sm:mt-4">
                     <label
                       htmlFor="newPassword"
                       className="block text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -284,11 +292,11 @@ export default function ProfilePage() {
                       type="password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-[#1dcd9f] text-white"
+                      className="mt-1 block w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-[#1dcd9f] text-black dark:text-white dark:bg-zinc-700"
                     />
                   </div>
 
-                  <div className="space-y-2 mt-4">
+                  <div className="space-y-1 sm:space-y-2 mt-3 sm:mt-4">
                     <label
                       htmlFor="confirmNewPassword"
                       className="block text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -300,23 +308,23 @@ export default function ProfilePage() {
                       type="password"
                       value={confirmNewPassword}
                       onChange={(e) => setConfirmNewPassword(e.target.value)}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#1dcd9f] focus:border-[#1dcd9f] text-white"
+                      className="mt-1 block w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#1dcd9f] focus:border-[#1dcd9f] text-black dark:text-white dark:bg-zinc-700"
                     />
                   </div>
                 </div>
 
-                <div className="flex justify-end space-x-4 pt-4">
+                <div className="flex flex-wrap justify-end gap-2 pt-3 sm:pt-4 mt-2">
                   <button
                     type="button"
                     onClick={handleCancelEdit}
-                    className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white rounded-md hover:bg-gray-400 dark:hover:bg-gray-500"
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white rounded-md hover:bg-gray-400 dark:hover:bg-gray-500"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isUpdating}
-                    className="px-4 py-2 bg-[#1dcd9f] text-white rounded-md hover:bg-[#169976] disabled:opacity-50"
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm bg-[#1dcd9f] text-white rounded-md hover:bg-[#169976] disabled:opacity-50"
                   >
                     {isUpdating ? 'Updating...' : 'Save Changes'}
                   </button>
@@ -324,33 +332,37 @@ export default function ProfilePage() {
               </form>
             ) : (
               <div className="space-y-6">
-                <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-8 py-4 border-b dark:border-zinc-700">
-                  <div className="font-medium text-gray-500 dark:text-gray-400 w-48">
+                <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-8 py-3 border-b dark:border-zinc-700">
+                  <div className="font-medium text-gray-500 dark:text-gray-400 w-full md:w-48 text-sm sm:text-base">
                     Username
                   </div>
-                  <div className="text-lg">{profile.username}</div>
+                  <div className="text-base sm:text-lg">{profile.username}</div>
                 </div>
 
-                <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-8 py-4 border-b dark:border-zinc-700">
-                  <div className="font-medium text-gray-500 dark:text-gray-400 w-48">
+                <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-8 py-3 border-b dark:border-zinc-700">
+                  <div className="font-medium text-gray-500 dark:text-gray-400 w-full md:w-48 text-sm sm:text-base">
                     Email
                   </div>
-                  <div className="text-lg">{profile.email}</div>
+                  <div className="text-base sm:text-lg break-all">
+                    {profile.email}
+                  </div>
                 </div>
 
                 {profile.apiKey && (
-                  <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-8 py-4 border-b dark:border-zinc-700">
-                    <div className="font-medium text-gray-500 dark:text-gray-400 w-48">
+                  <div className="flex flex-col md:flex-row md:items-start gap-1 md:gap-8 py-3 border-b dark:border-zinc-700">
+                    <div className="font-medium text-gray-500 dark:text-gray-400 w-full md:w-48 text-sm sm:text-base">
                       API Key
                     </div>
-                    <div className="flex flex-col">
-                      <div className="text-lg font-mono break-all bg-gray-100 dark:bg-zinc-700 p-2 rounded flex items-center gap-2">
-                        {showFullApiKey
-                          ? profile.apiKey
-                          : maskApiKey(profile.apiKey)}
+                    <div className="flex flex-col w-full">
+                      <div className="text-sm sm:text-base font-mono break-all bg-gray-100 dark:bg-zinc-700 p-2 rounded flex flex-wrap items-center gap-2">
+                        <span className="overflow-ellipsis">
+                          {showFullApiKey
+                            ? profile.apiKey
+                            : maskApiKey(profile.apiKey)}
+                        </span>
                         <button
                           onClick={toggleApiKeyVisibility}
-                          className="ml-2 p-1 text-xs bg-gray-200 dark:bg-zinc-600 rounded hover:bg-gray-300 dark:hover:bg-zinc-500"
+                          className="ml-auto p-1 text-xs bg-gray-200 dark:bg-zinc-600 rounded hover:bg-gray-300 dark:hover:bg-zinc-500"
                         >
                           {showFullApiKey ? 'Hide' : 'Show'}
                         </button>
@@ -363,10 +375,10 @@ export default function ProfilePage() {
                   </div>
                 )}
 
-                <div className="pt-4">
+                <div className="pt-3 sm:pt-4">
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="px-4 py-2 bg-[#1dcd9f] text-white rounded-md hover:bg-[#169976]"
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm bg-[#1dcd9f] text-white rounded-md hover:bg-[#169976]"
                   >
                     Edit Profile
                   </button>

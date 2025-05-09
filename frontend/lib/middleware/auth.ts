@@ -5,7 +5,7 @@ export function withAuth(middleware: (request: NextRequest) => NextResponse) {
     const token = request.cookies.get('token')?.value;
     const pathname = request.nextUrl.pathname;
 
-    const publicPaths = ['/auth/login', '/auth/register', '/'];
+    const publicPaths = ['/auth/login', '/auth/register', '/', '/models'];
     if (publicPaths.includes(pathname)) {
       if (
         token &&
