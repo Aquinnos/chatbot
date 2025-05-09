@@ -21,7 +21,7 @@ export default function Login() {
       // Sprawdzenie dostępności serwera przed próbą logowania
       const serverCheckTimeout = setTimeout(() => {
         setError(
-          'Serwer API nie jest dostępny. Sprawdź połączenie i spróbuj ponownie.'
+          'Server API is not responding. Please check if the backend is running.'
         );
         setIsLoading(false);
       }, 10000); // 10 sekund timeout
@@ -36,21 +36,21 @@ export default function Login() {
       const errorMessage =
         err instanceof Error
           ? err.message
-          : 'Wystąpił nieznany błąd podczas logowania. Spróbuj ponownie.';
+          : 'Error occurred while logging in. Please try again later.';
 
       // Bardziej przyjazne komunikaty błędów
       let userFriendlyMessage = errorMessage;
       if (errorMessage.includes('Server error: 404')) {
         userFriendlyMessage =
-          'Użytkownik o podanym adresie e-mail nie został znaleziony.';
+          'User not found. Please check your email and password.';
       } else if (errorMessage.includes('Invalid password')) {
-        userFriendlyMessage = 'Nieprawidłowe hasło. Spróbuj ponownie.';
+        userFriendlyMessage = 'Password is incorrect. Please try again.';
       } else if (
         errorMessage.includes('Failed to fetch') ||
         errorMessage.includes('Network')
       ) {
         userFriendlyMessage =
-          'Problem z połączeniem do serwera. Sprawdź czy backend jest uruchomiony.';
+          'Problem with the server connection. Please check your internet connection.';
       }
 
       setError(userFriendlyMessage);
