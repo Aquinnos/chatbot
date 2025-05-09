@@ -8,6 +8,7 @@ import offlineResponseRoutes from './routes/offlineResponseRoutes';
 
 dotenv.config();
 
+// Check if the required environment variables are set
 const PORT = process.env.PORT || 5001;
 
 const app = express();
