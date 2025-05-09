@@ -2,6 +2,8 @@
 
 A modern, responsive chatbot application built with Next.js and the GLHF API. This application allows users to have interactive conversations with various state-of-the-art AI language models, including Llama, DeepSeek, Mixtral, and more.
 
+Live demo: https://chatbot-roan-six.vercel.app/
+
 ## Features
 
 - **Interactive Chat Interface**: Clean and responsive UI for chatting with AI models
