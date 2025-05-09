@@ -10,28 +10,10 @@ dotenv.config();
 
 const PORT = process.env.PORT || 5001;
 
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'http://127.0.0.1:3000',
-  'http://127.0.0.1:3001',
-];
-if (process.env.FRONTEND_URL) {
-  allowedOrigins.push(process.env.FRONTEND_URL);
-}
-
-const corsOptions = {
-  origin: allowedOrigins,
-  credentials: true,
-  exposedHeaders: ['Authorization'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-};
-
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors(corsOptions));
+app.use(cors());
 
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);

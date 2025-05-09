@@ -1,0 +1,21 @@
+{
+  "name": "chatbot",
+  "version": "1.0.0",
+  "description": "A modern, responsive chatbot application built with Next.js and the GLHF API. This application allows users to have interactive conversations with various state-of-the-art AI language models, including Llama, DeepSeek, Mixtral, and more.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "cd backend && npm install && npm run build",
+    "start": "cd backend && npm run start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aquinnos/chatbot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Aquinnos/chatbot/issues"
+  },
+  "homepage": "https://github.com/Aquinnos/chatbot#readme"
+}
