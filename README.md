@@ -23,6 +23,7 @@ A modern, responsive chatbot application built with Next.js and the GLHF API. Th
 - **React 19.x**: For building the user interface
 - **TypeScript**: Type-safe code
 - **TailwindCSS**: For styling
+- **Express.js**: For backend server
 - **OpenAI SDK**: For communication with the GLHF API
 - **localStorage API**: For client-side data persistence
 - **Markdown Support**: For rendering rich text and code blocks

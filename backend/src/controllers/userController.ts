@@ -1,9 +1,6 @@
 import { Request, Response } from 'express';
 import User from '../models/user';
-import jwt, { SignOptions } from 'jsonwebtoken';
-
-// Default API key for users who don't have one
-const DEFAULT_API_KEY = 'glhf_default_key_for_users';
+import jwt from 'jsonwebtoken';
 
 export const createUser = async (req: Request, res: Response) => {
   const { username, email, password } = req.body;

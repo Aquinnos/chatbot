@@ -18,19 +18,17 @@ export default function Login() {
     setError('');
 
     try {
-      // Sprawdzenie dostępności serwera przed próbą logowania
       const serverCheckTimeout = setTimeout(() => {
         setError(
           'Server API is not responding. Please check if the backend is running.'
         );
         setIsLoading(false);
-      }, 10000); // 10 sekund timeout
+      }, 10000);
 
       await authApi.login({ email, password });
 
       clearTimeout(serverCheckTimeout);
 
-      // Przekierowanie do strony głównej po udanym logowaniu
       router.push('/');
     } catch (err: Error | unknown) {
       const errorMessage =
@@ -38,7 +36,6 @@ export default function Login() {
           ? err.message
           : 'Error occurred while logging in. Please try again later.';
 
-      // Bardziej przyjazne komunikaty błędów
       let userFriendlyMessage = errorMessage;
       if (errorMessage.includes('Server error: 404')) {
         userFriendlyMessage =
