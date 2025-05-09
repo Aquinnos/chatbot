@@ -5,9 +5,12 @@ export function withAuth(middleware: (request: NextRequest) => NextResponse) {
     const token = request.cookies.get('token')?.value;
     const pathname = request.nextUrl.pathname;
 
-    const publicPaths = ['/auth/login', '/auth/register'];
+    const publicPaths = ['/auth/login', '/auth/register', '/'];
     if (publicPaths.includes(pathname)) {
-      if (token) {
+      if (
+        token &&
+        (pathname === '/auth/login' || pathname === '/auth/register')
+      ) {
         return NextResponse.redirect(new URL('/', request.url));
       }
       return middleware(request);

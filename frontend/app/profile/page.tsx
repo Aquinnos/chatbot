@@ -190,7 +190,7 @@ export default function ProfilePage() {
             <h1 className="text-3xl font-bold">Profile</h1>
             <div className="flex gap-4">
               <button
-                onClick={() => router.push('/')}
+                onClick={() => router.push('/chat')}
                 className="px-4 py-2 rounded-md bg-[#1dcd9f] text-white hover:bg-[#169976] transition-colors"
               >
                 Back to Chat

@@ -288,3 +288,82 @@ body {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
     0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
+
+/* Custom styles for range sliders */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  background: #444;
+  border-radius: 4px;
+  outline: none;
+}
+
+/* Thumb styles (the circular handle) */
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: #1dcd9f;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: #1dcd9f;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+/* Track styles (the filled part of the slider) */
+input[type='range']::-webkit-slider-runnable-track {
+  height: 8px;
+  background: linear-gradient(
+    to right,
+    #1dcd9f 0%,
+    #1dcd9f var(--range-progress, 50%),
+    #444 var(--range-progress, 50%)
+  );
+  border-radius: 4px;
+}
+
+input[type='range']::-moz-range-track {
+  height: 8px;
+  background: #444;
+  border-radius: 4px;
+}
+
+input[type='range']::-moz-range-progress {
+  height: 8px;
+  background: #1dcd9f;
+  border-radius: 4px;
+}
+
+/* Focus styles */
+input[type='range']:focus {
+  outline: none;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  input[type='range'] {
+    background: #222;
+  }
+
+  input[type='range']::-webkit-slider-runnable-track {
+    background: linear-gradient(
+      to right,
+      #1dcd9f 0%,
+      #1dcd9f var(--range-progress, 50%),
+      #222 var(--range-progress, 50%)
+    );
+  }
+
+  input[type='range']::-moz-range-track {
+    background: #222;
+  }
+}

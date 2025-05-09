@@ -10,7 +10,10 @@ dotenv.config();
 
 const PORT = process.env.PORT || 5001;
 
-const allowedOrigins = ['https://chatbot-roan-six.vercel.app'];
+const allowedOrigins = [
+  'https://chatbot-roan-six.vercel.app',
+  'http://localhost:3000',
+];
 
 const corsOptions = {
   origin: (

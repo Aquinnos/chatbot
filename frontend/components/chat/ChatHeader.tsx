@@ -6,6 +6,7 @@ import { ModelSelector } from '../ui/model-selector';
 import { Model, defaultModel } from '@/lib/models';
 import { ApiKeyDialog } from './ApiKeyDialog';
 import { ModelSwitchDialog } from './ModelSwitchDialog';
+import { MobileMenu } from './MobileMenu';
 import { authApi } from '@/services/api';
 
 interface ChatHeaderProps {
@@ -81,8 +82,8 @@ export function ChatHeader({
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 border-b dark:border-zinc-700">
-        <div className="flex items-center mb-2 sm:mb-0 w-full sm:w-auto mr-2">
+      <div className="flex flex-row justify-between items-center p-3 border-b dark:border-zinc-700">
+        <div className="flex items-center w-auto mr-2">
           <button
             onClick={() => setChatSidebarOpen(!chatSidebarOpen)}
             className="md:hidden p-2 mr-2 rounded-md hover:bg-gray-200 dark:hover:bg-zinc-700"
@@ -107,28 +108,30 @@ export function ChatHeader({
             {getActiveChatTitle()}
           </h2>
         </div>
-        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+
+        {/* Desktop view - show all buttons */}
+        <div className="hidden sm:flex flex-wrap gap-2">
           <button
             onClick={() => setApiKeyDialogOpen(true)}
-            className="flex-shrink-0 w-full sm:w-auto px-3 py-1.5 text-sm bg-purple-500 hover:bg-purple-600 text-white rounded-md"
+            className="flex-shrink-0 px-3 py-1.5 text-sm bg-purple-500 hover:bg-purple-600 text-white rounded-md"
             aria-label="API Key"
           >
-            <span className="">
+            <span>
               <span className="mr-1">🔑</span>
-              <span className="sm:inline">API Key</span>
+              <span>API Key</span>
             </span>
           </button>
           <button
             onClick={() => setConfigOpen(!configOpen)}
-            className="flex-shrink-0 w-full sm:w-auto px-3 py-1.5 text-sm bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-700 dark:hover:bg-zinc-600 rounded-md"
+            className="flex-shrink-0 px-3 py-1.5 text-sm bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-700 dark:hover:bg-zinc-600 rounded-md"
             aria-label="Settings"
           >
-            <span className="">
+            <span>
               <span className="mr-1">⚙️</span>
-              <span className="sm:inline">Settings</span>
+              <span>Settings</span>
             </span>
           </button>
-          <div className="w-full sm:w-auto">
+          <div>
             <ModelSelector
               models={models}
               selectedModel={actualModel}
@@ -137,25 +140,39 @@ export function ChatHeader({
           </div>
           <button
             onClick={clearChat}
-            className="flex-shrink-0 w-full sm:w-auto px-3 py-1.5 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md"
+            className="flex-shrink-0 px-3 py-1.5 text-sm bg-red-500 hover:bg-red-600 text-white rounded-md"
             aria-label="Clear chat"
           >
-            <span className="sm:inline">Clear chat</span>
+            <span>Clear chat</span>
           </button>
           <button
             onClick={handleProfileClick}
-            className="flex-shrink-0 w-full sm:w-auto px-3 py-1.5 text-sm bg-[#1dcd9f] hover:bg-[#169976] text-white rounded-md"
+            className="flex-shrink-0 px-3 py-1.5 text-sm bg-[#1dcd9f] hover:bg-[#169976] text-white rounded-md"
             aria-label="Profile"
           >
-            <span className="sm:inline">Profile</span>
+            <span>Profile</span>
           </button>
           <button
             onClick={handleLogout}
-            className="flex-shrink-0 w-full sm:w-auto px-3 py-1.5 text-sm bg-gray-500 hover:bg-gray-600 text-white rounded-md"
+            className="flex-shrink-0 px-3 py-1.5 text-sm bg-gray-500 hover:bg-gray-600 text-white rounded-md"
             aria-label="Logout"
           >
-            <span className="sm:inline">Logout</span>
+            <span>Logout</span>
           </button>
+        </div>
+
+        {/* Mobile view - use MobileMenu component */}
+        <div className="sm:hidden">
+          <MobileMenu
+            onApiKeyClick={() => setApiKeyDialogOpen(true)}
+            onSettingsClick={() => setConfigOpen(!configOpen)}
+            onClearChatClick={clearChat}
+            onProfileClick={handleProfileClick}
+            onLogoutClick={handleLogout}
+            models={models}
+            selectedModel={actualModel}
+            onModelSelect={handleModelSelect}
+          />
         </div>
       </div>
 

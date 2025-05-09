@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Chatbot',
+  title: 'GLHF Chatbot',
   description:
-    'Chatbot GLHF (meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8)',
+    'Powerful AI conversations with advanced language models through GLHF API',
 };
 
 export default function RootLayout({
@@ -29,9 +29,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ToastProvider>
-          {children}
-        </ToastProvider>
+        <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
   );

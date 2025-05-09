@@ -47,7 +47,7 @@ export default function Chatbot() {
   const actualModel = selectedModel || defaultModel;
 
   return (
-    <div className="flex h-[85vh] max-w-screen-xl mx-auto relative">
+    <div className="flex h-[85vh] max-w-screen-xl mx-auto relative overflow-hidden">
       {/* Sidebar showing all available chats */}
       <ChatSidebar
         chats={chats}
