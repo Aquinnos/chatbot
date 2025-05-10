@@ -10,6 +10,7 @@ dotenv.config();
 
 const PORT = process.env.PORT || 5001;
 
+// This is a list of origins that are allowed to access the server
 const allowedOrigins = [
   'https://chatbot-roan-six.vercel.app',
   'http://localhost:3000',
